@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f3f1">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>我的小说小窝</title>
+<style>
+:root{
+  --bg:#f7f3f1;--panel:#fffdfc;--panel2:#faf6f4;--text:#494344;--sub:#928887;
+  --line:#eee5e2;--accent:#9d8bd7;--accent2:#ece7fb;--pink:#efb4c7;
+  --green:#9ed7c0;--blue:#9eb9e9;--yellow:#f2d59d;--danger:#e9a9b9;
+  --shadow:0 10px 30px rgba(86,65,76,.07);--radius:22px
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{max-width:460px;margin:auto;min-height:100vh;padding:18px 15px 92px}
+.top{display:flex;justify-content:space-between;align-items:center;margin:3px 2px 18px}
+.brand h1{font-size:23px;letter-spacing:.3px;margin:0;font-weight:750}
+.brand p{margin:4px 0 0;color:var(--sub);font-size:11px}
+.iconbtn{border:1px solid var(--line);background:rgba(255,255,255,.85);width:40px;height:40px;border-radius:50%;color:#756b70}
+.card{background:var(--panel);border:1px solid rgba(235,225,222,.8);border-radius:var(--radius);padding:17px;margin:12px 0;box-shadow:var(--shadow)}
+.sectionhead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sectionhead h2{font-size:18px;margin:0;font-weight:750}
+.sectionhead small{color:var(--sub);font-size:11px}
+.link{border:0;background:transparent;color:#8573c8;padding:5px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--panel2);border:1px solid var(--line);border-radius:17px;padding:13px 14px}
+.stat small{color:var(--sub);font-size:11px}
+.stat b{font-size:24px;display:block;margin-top:4px;letter-spacing:.2px}
+.timeline{position:relative;margin-top:20px;padding-left:25px}
+.timeline:before{content:"";position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:#e8e0ed;border-radius:2px}
+.event{position:relative;margin-bottom:22px}
+.dot{position:absolute;left:-21px;top:9px;width:11px;height:11px;border-radius:50%;border:3px solid var(--panel);box-shadow:0 0 0 2px #c8b9e9;background:#9d8bd7}
+.date{font-size:11px;color:#8e8186;margin-bottom:8px}
+.book{display:flex;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:17px;padding:10px}
+.cover{width:58px;height:78px;border-radius:10px;background:linear-gradient(145deg,#e8e1f7,#f3e9ed);display:flex;align-items:center;justify-content:center;color:#9c9097;font-size:11px;overflow:hidden;flex:none}
+.cover img{width:100%;height:100%;object-fit:cover}
+.book h3{font-size:15px;margin:0 0 3px;font-weight:700}
+.muted{font-size:11px;color:var(--sub);margin:2px 0}
+.stars{display:flex;gap:0;margin-top:4px}
+.star{border:0;background:none;padding:0 1px;color:#e4a86d;font-size:16px;line-height:1}
+.star.off{color:#ddd4d1}
+.pill{display:inline-flex;align-items:center;background:#eee9fb;color:#7969b9;border-radius:99px;padding:4px 8px;font-size:10px;margin-top:5px}
+.pill.done{background:#e5f5ee;color:#589a7d}.pill.drop{background:#fae9ef;color:#b66e84}
+.metaRow{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+.miniTag{font-size:10px;color:#7f7377;background:#f5f0ee;border-radius:7px;padding:3px 6px}
+.tabs{display:flex;gap:6px;overflow:auto;margin:14px 0 10px;padding-bottom:2px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{white-space:nowrap;border:1px solid var(--line);border-radius:99px;padding:7px 11px;background:#fff;color:#786e72;font-size:11px}
+.tabs button.active{background:#9d8bd7;border-color:#9d8bd7;color:#fff}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.cardbook{background:#fff;border:1px solid var(--line);border-radius:17px;padding:10px;position:relative;min-width:0}
+.cardbook .cover{width:100%;height:155px;margin-bottom:9px}
+.cardbook h3{font-size:14px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cardbook .stars{margin-top:3px}
+.cardbook .star{font-size:14px}
+.cardbook .dateMini{font-size:10px;color:#8e8186;margin-top:6px}
+.cardbook .deleteMini{position:absolute;right:8px;bottom:8px;border:0;background:#f8eeee;color:#b77983;border-radius:7px;font-size:10px;padding:4px 6px}
+.fab{position:fixed;right:max(21px,calc((100vw - 460px)/2 + 17px));bottom:82px;border:0;width:54px;height:54px;border-radius:50%;background:#9d8bd7;color:#fff;font-size:28px;box-shadow:0 9px 25px rgba(116,94,173,.24);z-index:4}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:460px;height:70px;background:rgba(255,253,252,.96);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);z-index:5;padding-bottom:env(safe-area-inset-bottom)}
+.nav button{border:0;background:none;color:#9a8f92;font-size:10px}
+.nav button strong{display:block;font-size:19px;margin-bottom:3px;font-weight:500}
+.nav button.active{color:#8170c7}
+.modal{position:fixed;inset:0;background:rgba(50,42,45,.35);display:none;align-items:flex-end;z-index:10}
+.modal.show{display:flex}
+.sheet{background:#fffdfc;width:100%;max-width:460px;margin:auto;border-radius:28px 28px 0 0;padding:18px 18px 30px;max-height:90vh;overflow:auto}
+.close{float:right;border:0;background:#f2ecea;border-radius:50%;width:34px;height:34px;color:#756c70;font-size:20px}
+.field{margin:13px 0}.field label{display:block;font-size:11px;color:#817579;margin-bottom:6px;font-weight:650}
+input,select,textarea{width:100%;border:1px solid #e8dfdc;background:#fff;border-radius:13px;padding:11px 12px;color:var(--text);outline:none}
+input:focus,select:focus,textarea:focus{border-color:#b9a9e5;box-shadow:0 0 0 3px #eeeafd}
+textarea{min-height:75px;resize:vertical}
+.primary{width:100%;border:0;border-radius:14px;padding:12px;background:#9d8bd7;color:#fff;font-size:14px;font-weight:650}
+.danger{border:0;background:#fae8ec;color:#b36e80;border-radius:12px;padding:10px 12px}
+.coverUpload{display:flex;gap:10px;align-items:center}.uploadBtn{border:1px solid var(--line);background:#fff;border-radius:12px;padding:9px 11px;color:#776c70;font-size:12px}
+.tagrow{display:flex;flex-wrap:wrap;gap:7px}.tagChoice{border:1px solid var(--line);background:#fff;border-radius:10px;padding:7px 9px;font-size:11px;color:#746b6f}.tagChoice.sel{background:#eee9fb;border-color:#cfc4f1;color:#7564bd}
+.empty{text-align:center;color:#a19698;padding:30px 10px;font-size:12px}
+.rankrow{display:flex;align-items:center;gap:9px;padding:11px 0;border-bottom:1px solid var(--line)}
+.ranknum{width:23px;font-weight:750;color:#9d8bd7}.rankrow .cover{width:43px;height:58px}.rankrow .stars .star{font-size:13px}
+.filterline{display:flex;justify-content:space-between;align-items:center;margin-top:8px;color:var(--sub);font-size:11px}
+.color{width:30px;height:30px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #ddd}.colors{display:flex;gap:9px}
+.settingrow{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.detailTitle{display:flex;gap:13px;align-items:center}.detailTitle .cover{width:92px;height:125px}
+.detailBox{background:#faf6f4;border-radius:17px;padding:13px;margin-top:13px}.detailLine{display:flex;gap:8px;margin:8px 0;font-size:12px}.detailLine span:first-child{color:var(--sub);width:60px;flex:none}
+.calendarWrap{overflow:hidden}
+.calHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.monthTitle{font-size:18px;font-weight:750}
+.arrow{border:1px solid var(--line);background:#fff;border-radius:10px;width:32px;height:32px;color:#81777a}
+.calWeek{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.weekday{font-size:10px;color:#aaa0a3;text-align:center;padding:4px 0 7px}
+.week{position:relative;display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:30px 20px 20px 20px;gap:2px;margin-bottom:3px}
+.daynum{grid-row:1;font-size:10px;text-align:center;padding-top:5px;color:#6f6669;z-index:2}
+.daynum.today{width:22px;height:22px;margin:2px auto 0;background:#8170c7;color:#fff;border-radius:50%;padding-top:4px}
+.spanbar{align-self:center;height:18px;border-radius:7px;display:flex;align-items:center;padding:0 6px;font-size:9px;color:#655c61;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:1;border:1px solid rgba(255,255,255,.75)}
+.calLegend{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;font-size:10px;color:#8e8386}.legend{display:flex;align-items:center;gap:4px}.legend i{width:9px;height:9px;border-radius:3px;display:inline-block}
+.calNote{margin-top:10px;background:#faf6f4;border-radius:12px;padding:9px;font-size:10px;color:#8f8386;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="brand"><h1>📖 我的小说小窝</h1><p>记录每一本书，留住每一次心动</p></div>
+    <button class="iconbtn" onclick="openSettings()">⚙︎</button>
+  </div>
+  <main id="view"></main>
+</div>
+<button class="fab" onclick="openAdd()">＋</button>
+<nav class="nav">
+  <button id="n-home" onclick="go('home')"><strong>⌁</strong>时间轴</button>
+  <button id="n-shelf" onclick="go('shelf')"><strong>▦</strong>书架</button>
+  <button id="n-rank" onclick="go('rank')"><strong>♕</strong>排名</button>
+  <button id="n-cal" onclick="go('cal')"><strong>□</strong>日历</button>
+</nav>
+<div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+
+<script>
+if ("serviceWorker" in navigator) window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));
+const key='novelNestFull';
+let data=JSON.parse(localStorage.getItem(key)||'null')||{
+  theme:'#9d8bd7',books:[
+    {id:1,title:'偷藏星光',author:'示例作者',platform:'晋江文学城',type:'现代',status:'已看完',score:5,emoji:'♡',dateStart:'2026-08-13',dateEnd:'2026-08-15',note:'',reason:'',tags:['甜宠'],cover:'',rank:1},
+    {id:2,title:'难哄',author:'示例作者',platform:'番茄小说',type:'现代',status:'在读',score:5,emoji:'☁',dateStart:'2026-08-18',dateEnd:'2026-08-20',note:'',reason:'',tags:['治愈'],cover:'',rank:2},
+    {id:3,title:'等风热吻你',author:'示例作者',platform:'长佩文学',type:'都市',status:'在读',score:4,emoji:'✦',dateStart:'2026-08-18',dateEnd:'2026-08-20',note:'',reason:'',tags:['甜宠'],cover:'',rank:3},
+    {id:4,title:'白日梦我',author:'示例作者',platform:'晋江文学城',type:'现代',status:'已看完',score:4,emoji:'♡',dateStart:'2026-08-10',dateEnd:'2026-08-24',note:'',reason:'',tags:['校园'],cover:'',rank:4}
+  ],customTags:[]
+};
+data.books.forEach(b=>{b.dateStart=b.dateStart||b.date||'';b.dateEnd=b.dateEnd||((b.status==='已看完')?b.dateStart:'');b.tags=b.tags||[];b.reason=b.reason||'';b.cover=b.cover||''});
+data.customTags=data.customTags||[];
+let page='home',filter='全部',detailId=null,newCover='',newTags=[],editCover='',editTags=[],newScoreVal=0,newEmoji='♡';
+let calCursor=new Date(); calCursor.setDate(1);
+const $=id=>document.getElementById(id);
+function save(){localStorage.setItem(key,JSON.stringify(data))}
+function go(p){page=p;render()}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function isoDate(d){return d.toISOString().slice(0,10)}
+function parseDate(s){if(!s)return null;let [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)}
+function fmt(s){if(!s)return '未设置';let [y,m,d]=s.split('-');return `${y}.${m}.${d}`}
+function daysInMonth(y,m){return new Date(y,m+1,0).getDate()}
+function stars(b){return '<div class="stars">'+[1,2,3,4,5].map(n=>`<button class="star ${n<=Number(b.score||0)?'':'off'}" onclick="event.stopPropagation();rating(${n},${b.id})">★</button>`).join('')+'</div>'}
+function rating(n,id){let b=data.books.find(x=>x.id===id);b.score=n;save();render()}
+function statusPill(status){return `<span class="pill ${status==='已看完'?'done':status==='弃文'?'drop':''}">${status}</span>`}
+function coverHtml(b,cls='cover'){return `<div class="${cls}">${b.cover?`<img src="${b.cover}" alt="">`:'纯色封面'}</div>`}
+function card(b,grid=false){
+  if(grid)return `<div class="cardbook" onclick="openDetail(${b.id})">${coverHtml(b)}<h3>${esc(b.title)}</h3><div class="muted">${esc(b.author)}</div>${stars(b)}${statusPill(b.status)}<div class="dateMini">${fmt(b.dateStart)}${b.dateEnd&&b.dateEnd!==b.dateStart?' – '+fmt(b.dateEnd):''}</div><div class="metaRow">${[b.type,...(b.tags||[])].filter(Boolean).slice(0,3).map(t=>`<span class="miniTag">${esc(t)}</span>`).join('')}</div><button class="deleteMini" onclick="event.stopPropagation();deleteBook(${b.id})">删除</button></div>`;
+  return `<div class="book" onclick="openDetail(${b.id})">${coverHtml(b)}<div style="min-width:0"><h3>${esc(b.title)}</h3><div class="muted">${esc(b.author)}${b.platform?' · '+esc(b.platform):''}</div>${stars(b)}${statusPill(b.status)}<div class="metaRow"><span class="miniTag">${fmt(b.dateStart)}${b.dateEnd&&b.dateEnd!==b.dateStart?' – '+fmt(b.dateEnd):''}</span></div></div></div>`;
+}
+function render(){
+  document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));
+  let active={home:'n-home',shelf:'n-shelf',rank:'n-rank',cal:'n-cal'}[page];if(active)$(active).classList.add('active');
+  let v=$('view');
+  if(page==='home')renderHome(v);
+  if(page==='shelf')renderShelf(v);
+  if(page==='rank')renderRank(v);
+  if(page==='cal')renderCalendar(v);
+}
+function renderHome(v){
+  let done=data.books.filter(b=>b.status==='已看完').length;
+  let now=new Date(),ym=now.toISOString().slice(0,7);
+  let monthDone=data.books.filter(b=>b.status==='已看完'&&b.dateEnd&&b.dateEnd.startsWith(ym)).length;
+  let sorted=data.books.slice().sort((a,b)=>(b.dateStart||'').localeCompare(a.dateStart||''));
+  v.innerHTML=`<div class="card"><div class="stats"><div class="stat"><small>本月读完</small><b>${monthDone}</b><small>本</small></div><div class="stat"><small>总共已看</small><b>${done}</b><small>本</small></div></div></div>
+  <div class="card"><div class="sectionhead"><h2>阅读时间轴</h2><button class="link" onclick="go('cal')">看日历 →</button></div>
+  <div class="timeline">${sorted.map(b=>`<div class="event"><i class="dot"></i><div class="date">${fmt(b.dateStart)}${b.dateEnd&&b.dateEnd!==b.dateStart?' → '+fmt(b.dateEnd):''}</div>${card(b)}</div>`).join('')||'<div class="empty">还没有阅读记录，去添加第一本吧。</div>'}</div></div>`;
+}
+function renderShelf(v){
+  let list=data.books.filter(b=>filter==='全部'||b.status===filter||b.type===filter||(b.tags||[]).includes(filter));
+  let filters=['全部','在读','已看完','弃文','都市','现代','古代','未来幻想',...data.customTags];
+  v.innerHTML=`<div class="card"><div class="sectionhead"><h2>我的书架</h2><button class="link" onclick="openAdd()">＋ 添加小说</button></div>
+  <div class="tabs">${filters.map(x=>`<button class="${filter===x?'active':''}" onclick="filter=${JSON.stringify(x)};render()">${esc(x)}</button>`).join('')}</div>
+  <div class="filterline"><span>${list.length} 本</span><button class="link" onclick="addCustomTag()">＋ 自定义标签</button></div>
+  ${list.length?`<div class="grid" style="margin-top:10px">${list.map(b=>card(b,true)).join('')}</div>`:'<div class="empty">这个筛选里还没有书</div>'}</div>`;
+}
+function renderRank(v){
+  let list=data.books.slice().sort((a,b)=>(a.rank||999)-(b.rank||999));
+  v.innerHTML=`<div class="card"><div class="sectionhead"><h2>我的排名</h2><small>只自己看 · 展示前十</small></div>${list.slice(0,10).map((b,i)=>`<div class="rankrow"><span class="ranknum">${i+1}</span>${coverHtml(b)}<div style="flex:1;min-width:0"><b style="font-size:13px">${esc(b.title)}</b><div class="muted">${esc(b.author)}</div>${stars(b)}</div><button class="link" onclick="moveRank(${b.id},-1)">↑</button><button class="link" onclick="moveRank(${b.id},1)">↓</button></div>`).join('')||'<div class="empty">还没有排名</div>'}</div>`;
+}
+function renderCalendar(v){
+  let y=calCursor.getFullYear(),m=calCursor.getMonth(),first=new Date(y,m,1).getDay(),total=daysInMonth(y,m);
+  let weeks=[];let day=1-first;
+  while(day<=total){let start=Math.max(1,day),end=Math.min(total,day+6);weeks.push({start,end,offset:day<1?1-day:0});day+=7}
+  let bars=buildCalendarBars(y,m,weeks);
+  let html=`<div class="card calendarWrap"><div class="calHead"><button class="arrow" onclick="changeMonth(-1)">‹</button><div class="monthTitle">${y}年${m+1}月</div><button class="arrow" onclick="changeMonth(1)">›</button></div><div class="calWeek">${['日','一','二','三','四','五','六'].map(x=>`<div class="weekday">${x}</div>`).join('')}</div>`;
+  weeks.forEach((w,wi)=>{
+    let rowStart=wi*7+1;let cells='';
+    for(let c=0;c<7;c++){let n=rowStart+c;let valid=n>=1&&n<=total;let today=(isoDate(new Date())===`${y}-${String(m+1).padStart(2,'0')}-${String(n).padStart(2,'0')}`);cells+=`<div class="daynum ${today?'today':''}">${valid?n:''}</div>`}
+    html+=`<div class="week">${cells}${bars.filter(x=>x.week===wi).map(b=>`<div class="spanbar" style="grid-column:${b.colStart}/${b.colEnd};grid-row:${b.lane+2};background:${b.bg}" onclick="openDetail(${b.id})" title="${esc(b.title)}">${esc(b.title)}</div>`).join('')}</div>`;
+  });
+  html+=`<div class="calLegend"><span class="legend"><i style="background:#dcd3f5"></i>在读</span><span class="legend"><i style="background:#cfeee1"></i>已看完</span><span class="legend"><i style="background:#f6d8e3"></i>弃文</span></div><div class="calNote">同一天可以同时存在多本书：每本书占一条自己的色带。比如 18–20 号同时读两本，就会出现两条不同颜色的连续色块。</div></div>`;
+  v.innerHTML=html;
+}
+const palette=['#ddd4f7','#cdeedf','#f6d7e3','#d6e3f8','#f6e1b7','#d9e7df'];
+function buildCalendarBars(y,m,weeks){
+  let result=[];
+  weeks.forEach((w,wi)=>{
+    let weekMin=wi*7+1,weekMax=Math.min(daysInMonth(y,m),wi*7+7);
+    data.books.forEach((b,idx)=>{
+      let s=parseDate(b.dateStart),e=parseDate(b.dateEnd||b.dateStart);if(!s||!e)return;
+      let monthStart=new Date(y,m,weekMin),monthEnd=new Date(y,m,weekMax);
+      let sDay=(s.getFullYear()===y&&s.getMonth()===m)?s.getDate():weekMin;
+      let eDay=(e.getFullYear()===y&&e.getMonth()===m)?e.getDate():weekMax;
+      if(s<=monthEnd&&e>=monthStart){
+        let a=Math.max(weekMin,sDay),z=Math.min(weekMax,eDay);
+        let lane=0;while(result.some(x=>x.week===wi&&x.lane===lane&&!(z<x.start||a>x.end)))lane++;
+        let bg=palette[idx%palette.length];
+        result.push({week:wi,id:b.id,title:b.title,start:a,end:z,lane, colStart:(a-weekMin)+1,colEnd:(z-weekMin)+2,bg});
+      }
+    });
+  });
+  return result;
+}
+function changeMonth(d){calCursor.setMonth(calCursor.getMonth()+d);render()}
+function addCustomTag(){let t=prompt('输入自定义标签');if(!t)return;if(!data.customTags.includes(t)){data.customTags.push(t);save()}render()}
+function chooseCover(input,target){let file=input.files[0];if(!file)return;let r=new FileReader();r.onload=()=>{if(target==='new'){newCover=r.result;let x=$('newCoverPreview');if(x)x.innerHTML='<img src="'+r.result+'">'}else{editCover=r.result;let x=$('editCoverPreview');if(x)x.innerHTML='<img src="'+r.result+'">'}};r.readAsDataURL(file)}
+function renderTagButtons(target){
+  let el=$(target==='new'?'newTags':'editTags');if(!el)return;let arr=target==='new'?newTags:editTags;
+  el.innerHTML=[...new Set(['都市','现代','古代','未来幻想',...data.customTags])].map(t=>`<button type="button" class="tagChoice ${arr.includes(t)?'sel':''}" onclick="toggleTag(${JSON.stringify(t)},'${target}')">${esc(t)}</button>`).join('');
+}
+function toggleTag(t,target){let arr=target==='new'?newTags:editTags,i=arr.indexOf(t);if(i>=0)arr.splice(i,1);else arr.push(t);renderTagButtons(target)}
+function openAdd(){
+  $('modal').classList.add('show');newCover='';newTags=[];newScoreVal=0;newEmoji='♡';
+  $('sheet').innerHTML=`<button class="close" onclick="closeModal()">×</button><h2>添加小说</h2>
+  <div class="field"><label>小说名 · 必填</label><input id="f_title" placeholder="请输入书名"></div>
+  <div class="field"><label>作者 · 必填</label><input id="f_author" placeholder="请输入作者"></div>
+  <div class="field"><label>平台 · 选填</label><input id="f_platform" placeholder="晋江 / 长佩 / 番茄……"></div>
+  <div class="field"><label>分类</label><select id="f_type"><option>都市</option><option>现代</option><option>古代</option><option>未来幻想</option></select></div>
+  <div class="field"><label>标签 · 可多选</label><div id="newTags" class="tagrow"></div></div>
+  <div class="field"><label>阅读状态</label><select id="f_status"><option>在读</option><option>已看完</option><option>弃文</option></select></div>
+  <div class="field"><label>开始阅读日期</label><input id="f_start" type="date"></div>
+  <div class="field"><label>结束日期 · 在读可留空</label><input id="f_end" type="date"></div>
+  <div class="field"><label>封面 · 可选</label><div class="coverUpload"><div id="newCoverPreview" class="cover">纯色封面</div><label class="uploadBtn">从相册选择<input type="file" accept="image/*" style="display:none" onchange="chooseCover(this,'new')"></label></div></div>
+  <div class="field"><label>评分 · 点星星</label><div id="newstars" class="stars">${[1,2,3,4,5].map(n=>`<button class="star off" onclick="newScore(${n})">★</button>`).join('')}</div></div>
+  <div class="field"><label>笔记 / 名场面 / 字数 · 选填</label><textarea id="f_note" placeholder="懒得填就留空，详情里也不会显示空项"></textarea></div>
+  <div class="field"><label>弃文原因 · 可自定义</label><input id="f_reason" placeholder="弃文时填写"></div>
+  <button class="primary" onclick="createBook()">保存到书架</button>`;
+  f_start.value=isoDate(new Date());renderTagButtons('new');
+}
+function newScore(n){newScoreVal=n;document.querySelectorAll('#newstars .star').forEach((x,i)=>x.classList.toggle('off',i>=n))}
+function createBook(){
+  let t=f_title.value.trim(),a=f_author.value.trim();if(!t||!a)return alert('小说名和作者都要填写');
+  let ds=f_start.value||isoDate(new Date()),de=f_end.value,status=f_status.value;if(status==='已看完'&&!de)de=ds;
+  let b={id:Date.now(),title:t,author:a,platform:f_platform.value.trim(),type:f_type.value,status,score:newScoreVal,emoji:newEmoji,dateStart:ds,dateEnd:de,note:f_note.value.trim(),reason:f_reason.value.trim(),tags:[...newTags],cover:newCover,rank:data.books.length+1};
+  data.books.unshift(b);save();closeModal();filter='全部';go('shelf')
+}
+function openDetail(id){
+  detailId=id;let b=data.books.find(x=>x.id===id);$('modal').classList.add('show');
+  $('sheet').innerHTML=`<button class="close" onclick="closeModal()">×</button><div class="detailTitle">${coverHtml(b)}<div><h2 style="margin:0 0 5px">${esc(b.title)}</h2><div class="muted">${esc(b.author)}</div>${b.platform?`<div class="muted">${esc(b.platform)}</div>`:''}${stars(b)}${statusPill(b.status)}</div></div>
+  <div class="detailBox"><div class="detailLine"><span>分类</span><b>${esc(b.type||'未填写')}</b></div><div class="detailLine"><span>标签</span><b>${(b.tags||[]).map(esc).join('、')||'无'}</b></div><div class="detailLine"><span>阅读日期</span><b>${fmt(b.dateStart)}${b.dateEnd&&b.dateEnd!==b.dateStart?' → '+fmt(b.dateEnd):''}</b></div>${b.note?`<div class="detailLine"><span>笔记</span><b>${esc(b.note)}</b></div>`:''}${b.reason?`<div class="detailLine"><span>弃文原因</span><b>${esc(b.reason)}</b></div>`:''}</div>
+  <button class="primary" style="margin-top:12px" onclick="editBook(${id})">编辑小说</button><button class="danger" style="width:100%;margin-top:9px" onclick="deleteBook(${id})">删除这本书</button>`;
+}
+function deleteBook(id){if(!confirm('确定删除这本书吗？'))return;data.books=data.books.filter(b=>b.id!==id);save();closeModal();render()}
+function editBook(id){
+  let b=data.books.find(x=>x.id===id);editCover=b.cover||'';editTags=[...(b.tags||[])];
+  $('sheet').innerHTML=`<button class="close" onclick="closeModal()">×</button><h2>编辑小说</h2>
+  <div class="field"><label>小说名</label><input id="e_title" value="${esc(b.title)}"></div><div class="field"><label>作者 · 必填</label><input id="e_author" value="${esc(b.author)}"></div>
+  <div class="field"><label>平台 · 选填</label><input id="e_platform" value="${esc(b.platform||'')}"></div>
+  <div class="field"><label>分类</label><select id="e_type">${['都市','现代','古代','未来幻想'].map(x=>`<option ${b.type===x?'selected':''}>${x}</option>`).join('')}</select></div>
+  <div class="field"><label>标签</label><div id="editTags" class="tagrow"></div></div>
+  <div class="field"><label>阅读状态</label><select id="e_status"><option ${b.status==='在读'?'selected':''}>在读</option><option ${b.status==='已看完'?'selected':''}>已看完</option><option ${b.status==='弃文'?'selected':''}>弃文</option></select></div>
+  <div class="field"><label>开始阅读日期</label><input id="e_start" type="date" value="${b.dateStart||''}"></div><div class="field"><label>结束日期</label><input id="e_end" type="date" value="${b.dateEnd||''}"></div>
+  <div class="field"><label>封面</label><div class="coverUpload"><div id="editCoverPreview" class="cover">${editCover?'<img src="'+editCover+'">':'纯色封面'}</div><label class="uploadBtn">从相册选择<input type="file" accept="image/*" style="display:none" onchange="chooseCover(this,'edit')"></label></div></div>
+  <div class="field"><label>评分 · 点星星</label><div class="stars">${[1,2,3,4,5].map(n=>`<button class="star ${n<=b.score?'':'off'}" onclick="rate(${id},${n});editBook(${id})">★</button>`).join('')}</div></div>
+  <div class="field"><label>笔记 / 名场面 / 字数 · 选填</label><textarea id="e_note">${esc(b.note||'')}</textarea></div><div class="field"><label>弃文原因 · 可自定义</label><input id="e_reason" value="${esc(b.reason||'')}"></div>
+  <button class="primary" onclick="updateBook(${id})">保存修改</button>`;
+  renderTagButtons('edit')
+}
+function rate(id,n){let b=data.books.find(x=>x.id===id);b.score=n;save()}
+function updateBook(id){
+  let b=data.books.find(x=>x.id===id);b.title=e_title.value.trim();b.author=e_author.value.trim();b.platform=e_platform.value.trim();b.type=e_type.value;b.status=e_status.value;b.dateStart=e_start.value;b.dateEnd=e_end.value;b.note=e_note.value.trim();b.reason=e_reason.value.trim();b.tags=[...editTags];b.cover=editCover;
+  if(b.status==='已看完'&&!b.dateEnd)b.dateEnd=b.dateStart;save();closeModal();render()
+}
+function openSettings(){
+  $('modal').classList.add('show');$('sheet').innerHTML=`<button class="close" onclick="closeModal()">×</button><h2>设置</h2>
+  <div class="settingrow"><span>主题颜色</span><div class="colors">${['#9d8bd7','#9eb9e9','#9ed7c0','#efb4c7','#f0c98d','#9faec3'].map(c=>`<button class="color" style="background:${c}" onclick="setTheme('${c}')"></button>`).join('')}</div></div>
+  <div class="settingrow"><span>自定义标签</span><button class="link" onclick="addCustomTag();closeModal()">管理</button></div>`;
+}
+function setTheme(c){data.theme=c;document.documentElement.style.setProperty('--accent',c);document.querySelectorAll('.primary').forEach(x=>x.style.background=c);save();closeModal();render()}
+function closeModal(){$('modal').classList.remove('show')}
+$('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+render();
+</script>
+</body>
+</html>
