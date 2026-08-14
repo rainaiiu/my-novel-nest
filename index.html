@@ -170,7 +170,8 @@ function renderHome(v){
 }
 function renderShelf(v){
   let list=data.books.filter(b=>filter==='全部'||b.status===filter||b.type===filter||(b.tags||[]).includes(filter));
-  let filters=['全部','在读','已看完','弃文','都市纯爱','现代幻想','古代纯爱','未来幻想',...data.customTags];
+  let builtInTags=['甜宠','治愈','校园','虐恋','悬疑','群像'];
+  let filters=['全部','在读','已看完','弃文','都市纯爱','现代幻想','古代纯爱','未来幻想',...builtInTags,...data.customTags];
   v.innerHTML=`<div class="card"><div class="sectionhead"><h2>我的书架</h2><button class="link" onclick="openAdd()">＋ 添加小说</button></div>
   <div class="tabs">${filters.map(x=>`<button class="${filter===x?'active':''}" onclick="filter=${JSON.stringify(x)};render()">${esc(x)}</button>`).join('')}</div>
   <div class="filterline"><span>${list.length} 本</span><button class="link" onclick="addCustomTag()">＋ 自定义标签</button></div>
