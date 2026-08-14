@@ -6,8 +6,7 @@
 <meta name="theme-color" content="#f7f3f1">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>我的小说小窝</title>
-<meta name="app-build" content="2026-08-14-final-v4">
+<title>我的小说小窝</title><meta name="app-build" content="2026-08-14-tag-scroll-fix">
 <style>
 :root{
   --bg:#f7f3f1;--panel:#fffdfc;--panel2:#faf6f4;--text:#494344;--sub:#928887;
@@ -67,9 +66,9 @@ button{cursor:pointer}
 .nav button{border:0;background:none;color:#9a8f92;font-size:10px}
 .nav button strong{display:block;font-size:19px;margin-bottom:3px;font-weight:500}
 .nav button.active{color:#8170c7}
-.modal{position:fixed;inset:0;background:rgba(50,42,45,.35);display:none;align-items:flex-end;z-index:10}
+.modal{position:fixed;inset:0;background:rgba(50,42,45,.35);display:none;align-items:flex-end;z-index:1000;overflow:hidden;overscroll-behavior:contain;touch-action:none}
 .modal.show{display:flex}
-.sheet{background:#fffdfc;width:100%;max-width:460px;margin:auto;border-radius:28px 28px 0 0;padding:18px 18px 30px;max-height:90vh;overflow:auto}
+.sheet{background:#fffdfc;width:100%;max-width:460px;margin:auto;border-radius:28px 28px 0 0;padding:18px 18px 30px;max-height:90dvh;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;overscroll-behavior-y:contain}
 .close{float:right;border:0;background:#f2ecea;border-radius:50%;width:34px;height:34px;color:#756c70;font-size:20px}
 .field{margin:13px 0}.field label{display:block;font-size:11px;color:#817579;margin-bottom:6px;font-weight:650}
 input,select,textarea{width:100%;border:1px solid #e8dfdc;background:#fff;border-radius:13px;padding:11px 12px;color:var(--text);outline:none}
@@ -128,7 +127,7 @@ let data=JSON.parse(localStorage.getItem(key)||'null')||{
     {id:4,title:'白日梦我',author:'示例作者',platform:'晋江文学城',type:'现代',status:'已看完',score:4,emoji:'♡',dateStart:'2026-08-10',dateEnd:'2026-08-24',note:'',reason:'',tags:['校园'],cover:'',rank:4}
   ],customTags:[]
 };
-const typeMap={'都市':'都市纯爱','现代':'现代幻想','古代':'古代纯爱','未来幻想':'未来幻想','都市纯爱':'都市纯爱','现代幻想':'现代幻想','古代纯爱':'古代纯爱'}; data.books.forEach(b=>{b.type=typeMap[b.type]||b.type; b.dateStart=b.dateStart||b.date||'';b.dateEnd=b.dateEnd||((b.status==='已看完')?b.dateStart:'');b.tags=b.tags||[];b.reason=b.reason||'';b.cover=b.cover||''});
+const typeMap={'都市':'都市纯爱','现代':'现代幻想','古代':'古代纯爱','未来幻想':'未来幻想'}; data.books.forEach(b=>{b.type=typeMap[b.type]||b.type; b.dateStart=b.dateStart||b.date||'';b.dateEnd=b.dateEnd||((b.status==='已看完')?b.dateStart:'');b.tags=b.tags||[];b.reason=b.reason||'';b.cover=b.cover||''});
 data.customTags=data.customTags||[];
 let page='home',filter='全部',detailId=null,newCover='',newTags=[],editCover='',editTags=[],newScoreVal=0,newEmoji='♡';
 let calCursor=new Date(); calCursor.setDate(1);
@@ -213,18 +212,45 @@ function buildCalendarBars(y,m,weeks){
   return result;
 }
 function changeMonth(d){calCursor.setMonth(calCursor.getMonth()+d);render()}
-function addCustomTag(){let t=prompt('输入自定义标签');if(!t)return;if(!data.customTags.includes(t)){data.customTags.push(t);save()}render()}
+function addCustomTag(){
+  let t=prompt('输入自定义标签');
+  if(!t)return;
+  t=t.trim();
+  if(!t)return;
+  if(!data.customTags.includes(t)){data.customTags.push(t);save()}
+  render();
+}
+function renameCustomTag(oldTag){
+  let t=prompt('修改标签名称',oldTag);
+  if(!t)return;
+  t=t.trim();
+  if(!t||t===oldTag)return;
+  if(data.customTags.includes(t))return alert('这个标签已经存在');
+  data.customTags=data.customTags.map(x=>x===oldTag?t:x);
+  data.books.forEach(b=>{b.tags=(b.tags||[]).map(x=>x===oldTag?t:x)});
+  save();openSettings();
+}
+function deleteCustomTag(tag){
+  if(!confirm('删除“'+tag+'”？已有书籍上的这个标签也会一起移除。'))return;
+  data.customTags=data.customTags.filter(x=>x!==tag);
+  data.books.forEach(b=>{b.tags=(b.tags||[]).filter(x=>x!==tag)});
+  save();openSettings();
+}
 function chooseCover(input,target){let file=input.files[0];if(!file)return;let r=new FileReader();r.onload=()=>{if(target==='new'){newCover=r.result;let x=$('newCoverPreview');if(x)x.innerHTML='<img src="'+r.result+'">'}else{editCover=r.result;let x=$('editCoverPreview');if(x)x.innerHTML='<img src="'+r.result+'">'}};r.readAsDataURL(file)}
 function renderTagButtons(target){
   const el=$(target==='new'?'newTags':'editTags'); if(!el)return;
   const arr=target==='new'?newTags:editTags;
   const builtInTags=['甜宠','治愈','校园','虐恋','悬疑','群像'];
   const tags=[...new Set([...builtInTags,...(data.customTags||[])])];
-  el.innerHTML=tags.map(t=>`<button type="button" class="tagChoice ${arr.includes(t)?'sel':''}" onclick="toggleTag(${JSON.stringify(t)},'${target}')">${esc(t)}</button>`).join('');
+  el.innerHTML=tags.map(t=>`<button type="button" class="tagChoice ${arr.includes(t)?'sel':''}" data-tag="${esc(t)}" data-target="${target}">${esc(t)}</button>`).join('');
+  el.querySelectorAll('.tagChoice').forEach(btn=>btn.addEventListener('click',e=>{
+    e.preventDefault(); e.stopPropagation();
+    toggleTag(btn.dataset.tag, btn.dataset.target);
+  }));
 }
 function toggleTag(t,target){let arr=target==='new'?newTags:editTags,i=arr.indexOf(t);if(i>=0)arr.splice(i,1);else arr.push(t);renderTagButtons(target)}
 function openAdd(){
-  $('modal').classList.add('show');newCover='';newTags=[];newScoreVal=0;newEmoji='♡';
+  $('modal').classList.add('show');document.body.classList.add('modal-open');newCover='';newTags=[];newScoreVal=0;newEmoji='♡';
   $('sheet').innerHTML=`<button class="close" onclick="closeModal()">×</button><h2>添加小说</h2>
   <div class="field"><label>小说名 · 必填</label><input id="f_title" placeholder="请输入书名"></div>
   <div class="field"><label>作者 · 必填</label><input id="f_author" placeholder="请输入作者"></div>
@@ -249,7 +275,7 @@ function createBook(){
   data.books.unshift(b);save();closeModal();filter='全部';go('shelf')
 }
 function openDetail(id){
-  detailId=id;let b=data.books.find(x=>x.id===id);$('modal').classList.add('show');
+  detailId=id;let b=data.books.find(x=>x.id===id);$('modal').classList.add('show');document.body.classList.add('modal-open');
   $('sheet').innerHTML=`<button class="close" onclick="closeModal()">×</button><div class="detailTitle">${coverHtml(b)}<div><h2 style="margin:0 0 5px">${esc(b.title)}</h2><div class="muted">${esc(b.author)}</div>${b.platform?`<div class="muted">${esc(b.platform)}</div>`:''}${stars(b)}${statusPill(b.status)}</div></div>
   <div class="detailBox"><div class="detailLine"><span>分类</span><b>${esc(b.type||'未填写')}</b></div><div class="detailLine"><span>标签</span><b>${(b.tags||[]).map(esc).join('、')||'无'}</b></div><div class="detailLine"><span>阅读日期</span><b>${fmt(b.dateStart)}${b.dateEnd&&b.dateEnd!==b.dateStart?' → '+fmt(b.dateEnd):''}</b></div>${b.note?`<div class="detailLine notePreviewRow" onclick="openNoteReader(${id})"><span>笔记</span><b class="notePreview">${esc(b.note)}</b><small class="noteTap">轻触放大阅读</small></div>`:''}${b.reason?`<div class="detailLine"><span>弃文原因</span><b>${esc(b.reason)}</b></div>`:''}</div>
   <button class="primary" style="margin-top:12px" onclick="editBook(${id})">编辑小说</button><button class="danger" style="width:100%;margin-top:9px" onclick="deleteBook(${id})">删除这本书</button>`;
@@ -276,17 +302,25 @@ function updateBook(id){
   if(b.status==='已看完'&&!b.dateEnd)b.dateEnd=b.dateStart;save();closeModal();render()
 }
 function openSettings(){
-  $('modal').classList.add('show');$('sheet').innerHTML=`<button class="close" onclick="closeModal()">×</button><h2>设置</h2>
+  $('modal').classList.add('show');document.body.classList.add('modal-open');
+  const tags=data.customTags||[];
+  $('sheet').innerHTML=`<button class="close" onclick="closeModal()">×</button><h2>设置</h2>
   <div class="settingrow"><span>主题颜色</span><div class="colors">${['#9d8bd7','#9eb9e9','#9ed7c0','#efb4c7','#f0c98d','#9faec3'].map(c=>`<button class="color" style="background:${c}" onclick="setTheme('${c}')"></button>`).join('')}</div></div>
-  <div class="settingrow"><span>自定义标签</span><button class="link" onclick="addCustomTag();closeModal()">管理</button></div>`;
+  <div class="settingrow"><span>自定义标签</span><button class="link" onclick="addCustomTag();openSettings()">＋ 添加</button></div>
+  <div style="margin-top:8px">${tags.length?tags.map(t=>`<div class="settingrow"><span>${esc(t)}</span><div><button class="link" onclick="renameCustomTag(${JSON.stringify(t)})">编辑</button><button class="link" style="color:#b66e84" onclick="deleteCustomTag(${JSON.stringify(t)})">删除</button></div></div>`).join(''):'<div class="empty">还没有自定义标签</div>'}</div>`;
 }
 function setTheme(c){data.theme=c;document.documentElement.style.setProperty('--accent',c);document.querySelectorAll('.primary').forEach(x=>x.style.background=c);save();closeModal();render()}
-function closeModal(){$('modal').classList.remove('show')}
+function closeModal(){$('modal').classList.remove('show');document.body.classList.remove('modal-open')}
 $('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+$('modal').addEventListener('touchmove',e=>{
+  if(!e.target.closest('.sheet')) e.preventDefault();
+},{passive:false});
+document.body.classList.remove('modal-open');
 render();
 </script>
 
 <style>
+body.modal-open{overflow:hidden;overscroll-behavior:none}
 .notePreviewRow{position:relative;display:block;cursor:zoom-in;padding-right:92px}
 .notePreview{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
 .noteTap{position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:10px;color:#9d8bd7;background:#f0ecfb;padding:4px 7px;border-radius:999px}
