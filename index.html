@@ -127,7 +127,7 @@ let data=JSON.parse(localStorage.getItem(key)||'null')||{
     {id:4,title:'白日梦我',author:'示例作者',platform:'晋江文学城',type:'现代',status:'已看完',score:4,emoji:'♡',dateStart:'2026-08-10',dateEnd:'2026-08-24',note:'',reason:'',tags:['校园'],cover:'',rank:4}
   ],customTags:[]
 };
-data.books.forEach(b=>{b.dateStart=b.dateStart||b.date||'';b.dateEnd=b.dateEnd||((b.status==='已看完')?b.dateStart:'');b.tags=b.tags||[];b.reason=b.reason||'';b.cover=b.cover||''});
+const typeMap={'都市':'都市纯爱','现代':'现代幻想','古代':'古代纯爱','未来幻想':'未来幻想'}; data.books.forEach(b=>{b.type=typeMap[b.type]||b.type; b.dateStart=b.dateStart||b.date||'';b.dateEnd=b.dateEnd||((b.status==='已看完')?b.dateStart:'');b.tags=b.tags||[];b.reason=b.reason||'';b.cover=b.cover||''});
 data.customTags=data.customTags||[];
 let page='home',filter='全部',detailId=null,newCover='',newTags=[],editCover='',editTags=[],newScoreVal=0,newEmoji='♡';
 let calCursor=new Date(); calCursor.setDate(1);
@@ -167,7 +167,7 @@ function renderHome(v){
 }
 function renderShelf(v){
   let list=data.books.filter(b=>filter==='全部'||b.status===filter||b.type===filter||(b.tags||[]).includes(filter));
-  let filters=['全部','在读','已看完','弃文','都市','现代','古代','未来幻想',...data.customTags];
+  let filters=['全部','在读','已看完','弃文','都市纯爱','现代幻想','古代纯爱','未来幻想',...data.customTags];
   v.innerHTML=`<div class="card"><div class="sectionhead"><h2>我的书架</h2><button class="link" onclick="openAdd()">＋ 添加小说</button></div>
   <div class="tabs">${filters.map(x=>`<button class="${filter===x?'active':''}" onclick="filter=${JSON.stringify(x)};render()">${esc(x)}</button>`).join('')}</div>
   <div class="filterline"><span>${list.length} 本</span><button class="link" onclick="addCustomTag()">＋ 自定义标签</button></div>
@@ -215,8 +215,11 @@ function changeMonth(d){calCursor.setMonth(calCursor.getMonth()+d);render()}
 function addCustomTag(){let t=prompt('输入自定义标签');if(!t)return;if(!data.customTags.includes(t)){data.customTags.push(t);save()}render()}
 function chooseCover(input,target){let file=input.files[0];if(!file)return;let r=new FileReader();r.onload=()=>{if(target==='new'){newCover=r.result;let x=$('newCoverPreview');if(x)x.innerHTML='<img src="'+r.result+'">'}else{editCover=r.result;let x=$('editCoverPreview');if(x)x.innerHTML='<img src="'+r.result+'">'}};r.readAsDataURL(file)}
 function renderTagButtons(target){
-  let el=$(target==='new'?'newTags':'editTags');if(!el)return;let arr=target==='new'?newTags:editTags;
-  el.innerHTML=[...new Set(['都市','现代','古代','未来幻想',...data.customTags])].map(t=>`<button type="button" class="tagChoice ${arr.includes(t)?'sel':''}" onclick="toggleTag(${JSON.stringify(t)},'${target}')">${esc(t)}</button>`).join('');
+  const el=$(target==='new'?'newTags':'editTags'); if(!el)return;
+  const arr=target==='new'?newTags:editTags;
+  const builtInTags=['甜宠','治愈','校园','虐恋','悬疑','群像'];
+  const tags=[...new Set([...builtInTags,...(data.customTags||[])])];
+  el.innerHTML=tags.map(t=>`<button type="button" class="tagChoice ${arr.includes(t)?'sel':''}" onclick="toggleTag(${JSON.stringify(t)},'${target}')">${esc(t)}</button>`).join('');
 }
 function toggleTag(t,target){let arr=target==='new'?newTags:editTags,i=arr.indexOf(t);if(i>=0)arr.splice(i,1);else arr.push(t);renderTagButtons(target)}
 function openAdd(){
@@ -225,7 +228,7 @@ function openAdd(){
   <div class="field"><label>小说名 · 必填</label><input id="f_title" placeholder="请输入书名"></div>
   <div class="field"><label>作者 · 必填</label><input id="f_author" placeholder="请输入作者"></div>
   <div class="field"><label>平台 · 选填</label><input id="f_platform" placeholder="晋江 / 长佩 / 番茄……"></div>
-  <div class="field"><label>分类</label><select id="f_type"><option>都市纯爱</option><option>现代幻想</option><option>古代纯爱</option><option>未来幻想</option></select></div>
+  <div class="field"><label>分类</label><select id="f_type"><option>都市</option><option>现代</option><option>古代</option><option>未来幻想</option></select></div>
   <div class="field"><label>标签 · 可多选</label><div id="newTags" class="tagrow"></div></div>
   <div class="field"><label>阅读状态</label><select id="f_status"><option>在读</option><option>已看完</option><option>弃文</option></select></div>
   <div class="field"><label>开始阅读日期</label><input id="f_start" type="date"></div>
@@ -247,7 +250,7 @@ function createBook(){
 function openDetail(id){
   detailId=id;let b=data.books.find(x=>x.id===id);$('modal').classList.add('show');
   $('sheet').innerHTML=`<button class="close" onclick="closeModal()">×</button><div class="detailTitle">${coverHtml(b)}<div><h2 style="margin:0 0 5px">${esc(b.title)}</h2><div class="muted">${esc(b.author)}</div>${b.platform?`<div class="muted">${esc(b.platform)}</div>`:''}${stars(b)}${statusPill(b.status)}</div></div>
-  <div class="detailBox"><div class="detailLine"><span>分类</span><b>${esc(b.type||'未填写')}</b></div><div class="detailLine"><span>标签</span><b>${(b.tags||[]).map(esc).join('、')||'无'}</b></div><div class="detailLine"><span>阅读日期</span><b>${fmt(b.dateStart)}${b.dateEnd&&b.dateEnd!==b.dateStart?' → '+fmt(b.dateEnd):''}</b></div>${b.note?`<div class="detailLine"><span>笔记</span><b>${esc(b.note)}</b></div>`:''}${b.reason?`<div class="detailLine"><span>弃文原因</span><b>${esc(b.reason)}</b></div>`:''}</div>
+  <div class="detailBox"><div class="detailLine"><span>分类</span><b>${esc(b.type||'未填写')}</b></div><div class="detailLine"><span>标签</span><b>${(b.tags||[]).map(esc).join('、')||'无'}</b></div><div class="detailLine"><span>阅读日期</span><b>${fmt(b.dateStart)}${b.dateEnd&&b.dateEnd!==b.dateStart?' → '+fmt(b.dateEnd):''}</b></div>${b.note?`<div class="detailLine notePreviewRow" onclick="openNoteReader(${id})"><span>笔记</span><b class="notePreview">${esc(b.note)}</b><small class="noteTap">轻触放大阅读</small></div>`:''}${b.reason?`<div class="detailLine"><span>弃文原因</span><b>${esc(b.reason)}</b></div>`:''}</div>
   <button class="primary" style="margin-top:12px" onclick="editBook(${id})">编辑小说</button><button class="danger" style="width:100%;margin-top:9px" onclick="deleteBook(${id})">删除这本书</button>`;
 }
 function deleteBook(id){if(!confirm('确定删除这本书吗？'))return;data.books=data.books.filter(b=>b.id!==id);save();closeModal();render()}
@@ -282,110 +285,31 @@ $('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
 render();
 </script>
 
-<script>
-(function(){
-  const TAG_STORE = 'novelNest_customTags';
-  function getCustomTags(){
-    try { return JSON.parse(localStorage.getItem(TAG_STORE) || '[]'); }
-    catch(e){ return []; }
-  }
-  function getBookTags(book){
-    return (book && (book.tags || book.tagList || book.labels)) || [];
-  }
-  function renderCustomTagChoices(container, book){
-    if(!container) return;
-    const tags = getCustomTags();
-    if(!tags.length) return;
-    const selected = new Set(getBookTags(book));
-    let box = container.querySelector('[data-custom-tag-choices]');
-    if(!box){
-      box = document.createElement('div');
-      box.dataset.customTagChoices = '1';
-      box.style.cssText='display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;';
-      container.appendChild(box);
-    }
-    box.innerHTML='';
-    tags.forEach(tag=>{
-      const b=document.createElement('button');
-      b.type='button';
-      b.textContent=tag;
-      b.dataset.tag=tag;
-      b.style.cssText='border:1px solid #ddd;border-radius:999px;padding:6px 11px;background:#fff;font:inherit;cursor:pointer;';
-      if(selected.has(tag)) b.style.fontWeight='700';
-      b.onclick=()=>{
-        if(selected.has(tag)) selected.delete(tag); else selected.add(tag);
-        b.style.fontWeight=selected.has(tag)?'700':'400';
-        b.dataset.selected=selected.has(tag)?'1':'0';
-        container.dispatchEvent(new CustomEvent('customtagschange',{detail:[...selected]}));
-      };
-      box.appendChild(b);
-    });
-  }
-  // Expose a small hook for the existing editor to call without changing its architecture.
-  window.__novelNestRenderCustomTags = renderCustomTagChoices;
-})();
-</script>
-
-
-<style id="note-reader-style">
-.note-reader-overlay{position:fixed;inset:0;z-index:99999;background:rgba(20,18,24,.42);display:none;align-items:center;justify-content:center;padding:18px;box-sizing:border-box}
-.note-reader-overlay.show{display:flex}
-.note-reader-panel{width:min(720px,100%);max-height:88vh;background:#fffdfb;border-radius:22px;box-shadow:0 18px 60px rgba(0,0,0,.22);overflow:hidden;display:flex;flex-direction:column}
-.note-reader-head{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:1px solid #eee7e2;font-weight:600}
-.note-reader-close{border:0;background:#f3efec;border-radius:999px;width:34px;height:34px;font-size:20px;line-height:1;cursor:pointer}
-.note-reader-body{padding:22px 20px 28px;overflow:auto;font-size:18px;line-height:1.85;white-space:pre-wrap;word-break:break-word;color:#403a36}
-.note-reader-hint{font-size:12px;font-weight:400;color:#9a9089;margin-left:8px}
-[data-note-reader]{cursor:zoom-in}
+<style>
+.notePreviewRow{position:relative;display:block;cursor:zoom-in;padding-right:92px}
+.notePreview{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.noteTap{position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:10px;color:#9d8bd7;background:#f0ecfb;padding:4px 7px;border-radius:999px}
+.noteReader{position:fixed;inset:0;z-index:10000;background:rgba(35,30,35,.38);display:none;align-items:flex-end;justify-content:center;padding:0}
+.noteReader.show{display:flex}
+.noteReaderCard{width:min(460px,100%);max-height:88vh;background:var(--panel);border-radius:24px 24px 0 0;box-shadow:0 -10px 40px rgba(50,35,45,.18);overflow:hidden}
+.noteReaderHead{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:1px solid var(--line);font-weight:700}
+.noteReaderClose{border:0;background:var(--panel2);border-radius:50%;width:34px;height:34px;font-size:22px;color:var(--sub)}
+.noteReaderBody{padding:20px 19px 30px;overflow:auto;font-size:18px;line-height:1.9;color:var(--text);white-space:pre-wrap;word-break:break-word}
 </style>
-<div class="note-reader-overlay" id="noteReaderOverlay" aria-hidden="true">
-  <div class="note-reader-panel" role="dialog" aria-modal="true" aria-label="读书笔记">
-    <div class="note-reader-head">
-      <div>读书笔记<span class="note-reader-hint">轻触空白处关闭</span></div>
-      <button class="note-reader-close" id="noteReaderClose" aria-label="关闭">×</button>
-    </div>
-    <div class="note-reader-body" id="noteReaderBody"></div>
+<div id="noteReader" class="noteReader" onclick="if(event.target===this)closeNoteReader()">
+  <div class="noteReaderCard" onclick="event.stopPropagation()">
+    <div class="noteReaderHead"><span>读书笔记</span><button class="noteReaderClose" onclick="closeNoteReader()">×</button></div>
+    <div id="noteReaderBody" class="noteReaderBody"></div>
   </div>
 </div>
 <script>
-(function(){
-  function textOf(el){
-    return (el.innerText || el.textContent || '').trim();
-  }
-  function ensureReader(){
-    const overlay=document.getElementById('noteReaderOverlay');
-    const body=document.getElementById('noteReaderBody');
-    const close=document.getElementById('noteReaderClose');
-    if(!overlay||!body||!close) return;
-    function hide(){overlay.classList.remove('show');overlay.setAttribute('aria-hidden','true');}
-    close.addEventListener('click',hide);
-    overlay.addEventListener('click',e=>{if(e.target===overlay)hide();});
-    document.addEventListener('keydown',e=>{if(e.key==='Escape')hide();});
-    document.addEventListener('click',e=>{
-      const target=e.target.closest && e.target.closest('[data-note-reader]');
-      if(!target) return;
-      const text=textOf(target);
-      if(!text) return;
-      body.textContent=text;
-      overlay.classList.add('show');
-      overlay.setAttribute('aria-hidden','false');
-    });
-  }
-  function markNotes(){
-    // Mark likely note areas without changing their existing appearance.
-    const selectors=[
-      '[class*="note"]','[class*="Note"]',
-      '[class*="memo"]','[class*="Memo"]',
-      '[class*="remark"]','[class*="Remark"]'
-    ];
-    document.querySelectorAll(selectors.join(',')).forEach(el=>{
-      if(el.children.length===0 && textOf(el).length>35) el.setAttribute('data-note-reader','1');
-    });
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>{ensureReader();markNotes();});
-  else {ensureReader();markNotes();}
-  const obs=new MutationObserver(()=>markNotes());
-  obs.observe(document.documentElement,{childList:true,subtree:true});
-})();
+function openNoteReader(id){
+  const b=data.books.find(x=>x.id===id); if(!b||!b.note)return;
+  $('noteReaderBody').textContent=b.note;
+  $('noteReader').classList.add('show');
+}
+function closeNoteReader(){ $('noteReader').classList.remove('show'); }
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeNoteReader()});
 </script>
 
 </body>
