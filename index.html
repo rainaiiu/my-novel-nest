@@ -292,7 +292,7 @@ function openAdd(){
   $('sheet').innerHTML=`<button class="close" onclick="closeModal()">×</button><h2>添加小说</h2>
   <div class="field"><label>小说名 · 必填</label><input id="f_title" placeholder="请输入书名"></div>
   <div class="field"><label>作者 · 必填</label><input id="f_author" placeholder="请输入作者"></div>
-  <div class="field"><label>平台 · 选填</label><select id="f_platform_select" onchange="syncPlatform(this.value,'f_platform')"><option value="">选择平台</option><option>晋江文学城</option><option>番茄小说</option><option>起点中文网</option><option>长佩文学</option><option>微信读书</option><option>其他</option></select><input id="f_platform" placeholder="也可以自己输入"></div>
+  <div class="field"><label>平台 · 选填</label><input id="f_platform" placeholder="晋江 / 长佩 / 番茄……"></div>
   <div class="field"><label>分类</label><select id="f_type"><option>都市纯爱</option><option>现代幻想</option><option>古代纯爱</option><option>未来幻想</option></select></div>
   <div class="field"><label>标签 · 可多选</label><div id="newTags" class="tagrow"></div></div>
   <div class="field"><label>阅读状态</label><select id="f_status"><option>在读</option><option>已看完</option><option>弃文</option></select></div>
@@ -340,62 +340,15 @@ function updateBook(id){
   let b=data.books.find(x=>x.id===id);b.title=e_title.value.trim();b.author=e_author.value.trim();b.platform=e_platform.value.trim();b.type=e_type.value;b.status=e_status.value;b.dateStart=e_start.value;b.dateEnd=e_end.value;b.note=e_note.value.trim();b.reason=e_reason.value.trim();b.tags=[...editTags];b.cover=editCover;
   if(b.status==='已看完'&&!b.dateEnd)b.dateEnd=b.dateStart;save();closeModal();render()
 }
-function exportData(){
- const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
- const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='我的小说小窝备份.json'; a.click();
-}
-function importData(e){
- const file=e.target.files[0]; if(!file)return;
- const r=new FileReader(); r.onload=()=>{try{data=JSON.parse(r.result);save();location.reload()}catch(err){alert('备份文件无效')}}; r.readAsText(file);
-}
-
-function openTagManager(){
-  const tags=data.customTags||[];
-  $('sheet').innerHTML=`<button class="close" onclick="openSettings()">×</button><h2>自定义标签</h2>
-  <button class="primary" onclick="addCustomTagPrompt()">添加标签</button>
-  <div style="margin-top:12px">${tags.length?tags.map(t=>`<div class="settingrow"><span>${esc(t)}</span><div><button class="link" onclick="editCustomTag(${JSON.stringify(t)})">编辑</button><button class="link" onclick="deleteCustomTag(${JSON.stringify(t)})">删除</button></div></div>`).join(''):'<div class="empty">暂无标签</div>'}</div>`;
-}
-function addCustomTagPrompt(){
- let t=prompt('标签名称'); if(!t)return;
- t=t.trim(); if(!t)return;
- data.customTags=data.customTags||[];
- if(!data.customTags.includes(t)) data.customTags.push(t);
- save(); openTagManager();
-}
-function editCustomTag(old){
- let t=prompt('修改标签名称',old); if(!t)return;
- t=t.trim(); if(!t||t===old)return;
- data.customTags=data.customTags.map(x=>x===old?t:x);
- (data.books||[]).forEach(b=>b.tags=(b.tags||[]).map(x=>x===old?t:x));
- save(); openTagManager();
-}
-function deleteCustomTag(t){
- if(!confirm('删除标签？'))return;
- data.customTags=data.customTags.filter(x=>x!==t);
- (data.books||[]).forEach(b=>b.tags=(b.tags||[]).filter(x=>x!==t));
- save(); openTagManager();
-}
-
-
-function moveBookRank(id,dir){
- let arr=data.books||[];
- let i=arr.findIndex(b=>b.id===id); if(i<0)return;
- let j=i+dir; if(j<0||j>=arr.length)return;
- [arr[i],arr[j]]=[arr[j],arr[i]];
- arr.forEach((b,n)=>b.rank=n+1);
- save(); render();
-}
-
 function openSettings(){
   $('modal').classList.add('show');document.body.classList.add('modal-open');$('sheet').innerHTML=`<button class="close" onclick="closeModal()">×</button><h2>设置</h2>
   <div class="settingrow"><span>主题颜色</span><div class="colors">${['#9d8bd7','#9eb9e9','#9ed7c0','#efb4c7','#f0c98d','#9faec3'].map(c=>`<button class="color" style="background:${c}" onclick="setTheme('${c}')"></button>`).join('')}</div></div>
   <div class="settingrow"><span>自定义标签</span><button class="link" onclick="openTagManager()">管理</button></div>`;
 }
-function syncPlatform(v,id){if(v&&v!=='其他')$(id).value=v;}
 function setTheme(c){data.theme=c;document.documentElement.style.setProperty('--accent',c);document.querySelectorAll('.primary').forEach(x=>x.style.background=c);save();closeModal();render()}
 function closeModal(){$('modal').classList.remove('show');document.body.classList.remove('modal-open')}
 $('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
-if(data.theme){document.documentElement.style.setProperty('--accent',data.theme);}\nrender();
+render();
 </script>
 
 <style>
