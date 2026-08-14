@@ -7,6 +7,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>我的小说小窝</title>
+<meta name="app-build" content="2026-08-14-final-v4">
 <style>
 :root{
   --bg:#f7f3f1;--panel:#fffdfc;--panel2:#faf6f4;--text:#494344;--sub:#928887;
@@ -127,8 +128,8 @@ let data=JSON.parse(localStorage.getItem(key)||'null')||{
     {id:4,title:'白日梦我',author:'示例作者',platform:'晋江文学城',type:'现代',status:'已看完',score:4,emoji:'♡',dateStart:'2026-08-10',dateEnd:'2026-08-24',note:'',reason:'',tags:['校园'],cover:'',rank:4}
   ],customTags:[]
 };
-const typeMap={'都市':'都市纯爱','现代':'现代幻想','古代':'古代纯爱','未来幻想':'未来幻想'}; data.books.forEach(b=>{b.type=typeMap[b.type]||b.type; b.dateStart=b.dateStart||b.date||'';b.dateEnd=b.dateEnd||((b.status==='已看完')?b.dateStart:'');b.tags=b.tags||[];b.reason=b.reason||'';b.cover=b.cover||''});
-data.customTags=[...new Set((data.customTags||[]).map(x=>String(x).trim()).filter(Boolean))];
+const typeMap={'都市':'都市纯爱','现代':'现代幻想','古代':'古代纯爱','未来幻想':'未来幻想','都市纯爱':'都市纯爱','现代幻想':'现代幻想','古代纯爱':'古代纯爱'}; data.books.forEach(b=>{b.type=typeMap[b.type]||b.type; b.dateStart=b.dateStart||b.date||'';b.dateEnd=b.dateEnd||((b.status==='已看完')?b.dateStart:'');b.tags=b.tags||[];b.reason=b.reason||'';b.cover=b.cover||''});
+data.customTags=data.customTags||[];
 let page='home',filter='全部',detailId=null,newCover='',newTags=[],editCover='',editTags=[],newScoreVal=0,newEmoji='♡';
 let calCursor=new Date(); calCursor.setDate(1);
 const $=id=>document.getElementById(id);
@@ -294,7 +295,7 @@ render();
 .noteReaderCard{width:min(460px,100%);max-height:88vh;background:var(--panel);border-radius:24px 24px 0 0;box-shadow:0 -10px 40px rgba(50,35,45,.18);overflow:hidden}
 .noteReaderHead{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:1px solid var(--line);font-weight:700}
 .noteReaderClose{border:0;background:var(--panel2);border-radius:50%;width:34px;height:34px;font-size:22px;color:var(--sub)}
-.noteReaderBody{padding:20px 19px 30px;overflow:auto;font-size:20px;line-height:1.9;color:var(--text);white-space:pre-wrap;word-break:break-word}
+.noteReaderBody{padding:20px 19px 30px;overflow:auto;font-size:18px;line-height:1.9;color:var(--text);white-space:pre-wrap;word-break:break-word}
 </style>
 <div id="noteReader" class="noteReader" onclick="if(event.target===this)closeNoteReader()">
   <div class="noteReaderCard" onclick="event.stopPropagation()">
