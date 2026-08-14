@@ -225,7 +225,7 @@ function openAdd(){
   <div class="field"><label>小说名 · 必填</label><input id="f_title" placeholder="请输入书名"></div>
   <div class="field"><label>作者 · 必填</label><input id="f_author" placeholder="请输入作者"></div>
   <div class="field"><label>平台 · 选填</label><input id="f_platform" placeholder="晋江 / 长佩 / 番茄……"></div>
-  <div class="field"><label>分类</label><select id="f_type"><option>都市</option><option>现代</option><option>古代</option><option>未来幻想</option></select></div>
+  <div class="field"><label>分类</label><select id="f_type"><option>都市纯爱</option><option>现代幻想</option><option>古代纯爱</option><option>未来幻想</option></select></div>
   <div class="field"><label>标签 · 可多选</label><div id="newTags" class="tagrow"></div></div>
   <div class="field"><label>阅读状态</label><select id="f_status"><option>在读</option><option>已看完</option><option>弃文</option></select></div>
   <div class="field"><label>开始阅读日期</label><input id="f_start" type="date"></div>
@@ -256,7 +256,7 @@ function editBook(id){
   $('sheet').innerHTML=`<button class="close" onclick="closeModal()">×</button><h2>编辑小说</h2>
   <div class="field"><label>小说名</label><input id="e_title" value="${esc(b.title)}"></div><div class="field"><label>作者 · 必填</label><input id="e_author" value="${esc(b.author)}"></div>
   <div class="field"><label>平台 · 选填</label><input id="e_platform" value="${esc(b.platform||'')}"></div>
-  <div class="field"><label>分类</label><select id="e_type">${['都市','现代','古代','未来幻想'].map(x=>`<option ${b.type===x?'selected':''}>${x}</option>`).join('')}</select></div>
+  <div class="field"><label>分类</label><select id="e_type">${['都市纯爱','现代幻想','古代纯爱','未来幻想'].map(x=>`<option ${b.type===x?'selected':''}>${x}</option>`).join('')}</select></div>
   <div class="field"><label>标签</label><div id="editTags" class="tagrow"></div></div>
   <div class="field"><label>阅读状态</label><select id="e_status"><option ${b.status==='在读'?'selected':''}>在读</option><option ${b.status==='已看完'?'selected':''}>已看完</option><option ${b.status==='弃文'?'selected':''}>弃文</option></select></div>
   <div class="field"><label>开始阅读日期</label><input id="e_start" type="date" value="${b.dateStart||''}"></div><div class="field"><label>结束日期</label><input id="e_end" type="date" value="${b.dateEnd||''}"></div>
@@ -281,5 +281,112 @@ function closeModal(){$('modal').classList.remove('show')}
 $('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
 render();
 </script>
+
+<script>
+(function(){
+  const TAG_STORE = 'novelNest_customTags';
+  function getCustomTags(){
+    try { return JSON.parse(localStorage.getItem(TAG_STORE) || '[]'); }
+    catch(e){ return []; }
+  }
+  function getBookTags(book){
+    return (book && (book.tags || book.tagList || book.labels)) || [];
+  }
+  function renderCustomTagChoices(container, book){
+    if(!container) return;
+    const tags = getCustomTags();
+    if(!tags.length) return;
+    const selected = new Set(getBookTags(book));
+    let box = container.querySelector('[data-custom-tag-choices]');
+    if(!box){
+      box = document.createElement('div');
+      box.dataset.customTagChoices = '1';
+      box.style.cssText='display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;';
+      container.appendChild(box);
+    }
+    box.innerHTML='';
+    tags.forEach(tag=>{
+      const b=document.createElement('button');
+      b.type='button';
+      b.textContent=tag;
+      b.dataset.tag=tag;
+      b.style.cssText='border:1px solid #ddd;border-radius:999px;padding:6px 11px;background:#fff;font:inherit;cursor:pointer;';
+      if(selected.has(tag)) b.style.fontWeight='700';
+      b.onclick=()=>{
+        if(selected.has(tag)) selected.delete(tag); else selected.add(tag);
+        b.style.fontWeight=selected.has(tag)?'700':'400';
+        b.dataset.selected=selected.has(tag)?'1':'0';
+        container.dispatchEvent(new CustomEvent('customtagschange',{detail:[...selected]}));
+      };
+      box.appendChild(b);
+    });
+  }
+  // Expose a small hook for the existing editor to call without changing its architecture.
+  window.__novelNestRenderCustomTags = renderCustomTagChoices;
+})();
+</script>
+
+
+<style id="note-reader-style">
+.note-reader-overlay{position:fixed;inset:0;z-index:99999;background:rgba(20,18,24,.42);display:none;align-items:center;justify-content:center;padding:18px;box-sizing:border-box}
+.note-reader-overlay.show{display:flex}
+.note-reader-panel{width:min(720px,100%);max-height:88vh;background:#fffdfb;border-radius:22px;box-shadow:0 18px 60px rgba(0,0,0,.22);overflow:hidden;display:flex;flex-direction:column}
+.note-reader-head{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:1px solid #eee7e2;font-weight:600}
+.note-reader-close{border:0;background:#f3efec;border-radius:999px;width:34px;height:34px;font-size:20px;line-height:1;cursor:pointer}
+.note-reader-body{padding:22px 20px 28px;overflow:auto;font-size:18px;line-height:1.85;white-space:pre-wrap;word-break:break-word;color:#403a36}
+.note-reader-hint{font-size:12px;font-weight:400;color:#9a9089;margin-left:8px}
+[data-note-reader]{cursor:zoom-in}
+</style>
+<div class="note-reader-overlay" id="noteReaderOverlay" aria-hidden="true">
+  <div class="note-reader-panel" role="dialog" aria-modal="true" aria-label="读书笔记">
+    <div class="note-reader-head">
+      <div>读书笔记<span class="note-reader-hint">轻触空白处关闭</span></div>
+      <button class="note-reader-close" id="noteReaderClose" aria-label="关闭">×</button>
+    </div>
+    <div class="note-reader-body" id="noteReaderBody"></div>
+  </div>
+</div>
+<script>
+(function(){
+  function textOf(el){
+    return (el.innerText || el.textContent || '').trim();
+  }
+  function ensureReader(){
+    const overlay=document.getElementById('noteReaderOverlay');
+    const body=document.getElementById('noteReaderBody');
+    const close=document.getElementById('noteReaderClose');
+    if(!overlay||!body||!close) return;
+    function hide(){overlay.classList.remove('show');overlay.setAttribute('aria-hidden','true');}
+    close.addEventListener('click',hide);
+    overlay.addEventListener('click',e=>{if(e.target===overlay)hide();});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape')hide();});
+    document.addEventListener('click',e=>{
+      const target=e.target.closest && e.target.closest('[data-note-reader]');
+      if(!target) return;
+      const text=textOf(target);
+      if(!text) return;
+      body.textContent=text;
+      overlay.classList.add('show');
+      overlay.setAttribute('aria-hidden','false');
+    });
+  }
+  function markNotes(){
+    // Mark likely note areas without changing their existing appearance.
+    const selectors=[
+      '[class*="note"]','[class*="Note"]',
+      '[class*="memo"]','[class*="Memo"]',
+      '[class*="remark"]','[class*="Remark"]'
+    ];
+    document.querySelectorAll(selectors.join(',')).forEach(el=>{
+      if(el.children.length===0 && textOf(el).length>35) el.setAttribute('data-note-reader','1');
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>{ensureReader();markNotes();});
+  else {ensureReader();markNotes();}
+  const obs=new MutationObserver(()=>markNotes());
+  obs.observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+
 </body>
 </html>
