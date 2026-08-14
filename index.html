@@ -128,7 +128,7 @@ let data=JSON.parse(localStorage.getItem(key)||'null')||{
   ],customTags:[]
 };
 const typeMap={'都市':'都市纯爱','现代':'现代幻想','古代':'古代纯爱','未来幻想':'未来幻想'}; data.books.forEach(b=>{b.type=typeMap[b.type]||b.type; b.dateStart=b.dateStart||b.date||'';b.dateEnd=b.dateEnd||((b.status==='已看完')?b.dateStart:'');b.tags=b.tags||[];b.reason=b.reason||'';b.cover=b.cover||''});
-data.customTags=data.customTags||[];
+data.customTags=[...new Set((data.customTags||[]).map(x=>String(x).trim()).filter(Boolean))];
 let page='home',filter='全部',detailId=null,newCover='',newTags=[],editCover='',editTags=[],newScoreVal=0,newEmoji='♡';
 let calCursor=new Date(); calCursor.setDate(1);
 const $=id=>document.getElementById(id);
@@ -228,7 +228,7 @@ function openAdd(){
   <div class="field"><label>小说名 · 必填</label><input id="f_title" placeholder="请输入书名"></div>
   <div class="field"><label>作者 · 必填</label><input id="f_author" placeholder="请输入作者"></div>
   <div class="field"><label>平台 · 选填</label><input id="f_platform" placeholder="晋江 / 长佩 / 番茄……"></div>
-  <div class="field"><label>分类</label><select id="f_type"><option>都市</option><option>现代</option><option>古代</option><option>未来幻想</option></select></div>
+  <div class="field"><label>分类</label><select id="f_type"><option>都市纯爱</option><option>现代幻想</option><option>古代纯爱</option><option>未来幻想</option></select></div>
   <div class="field"><label>标签 · 可多选</label><div id="newTags" class="tagrow"></div></div>
   <div class="field"><label>阅读状态</label><select id="f_status"><option>在读</option><option>已看完</option><option>弃文</option></select></div>
   <div class="field"><label>开始阅读日期</label><input id="f_start" type="date"></div>
@@ -294,7 +294,7 @@ render();
 .noteReaderCard{width:min(460px,100%);max-height:88vh;background:var(--panel);border-radius:24px 24px 0 0;box-shadow:0 -10px 40px rgba(50,35,45,.18);overflow:hidden}
 .noteReaderHead{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:1px solid var(--line);font-weight:700}
 .noteReaderClose{border:0;background:var(--panel2);border-radius:50%;width:34px;height:34px;font-size:22px;color:var(--sub)}
-.noteReaderBody{padding:20px 19px 30px;overflow:auto;font-size:18px;line-height:1.9;color:var(--text);white-space:pre-wrap;word-break:break-word}
+.noteReaderBody{padding:20px 19px 30px;overflow:auto;font-size:20px;line-height:1.9;color:var(--text);white-space:pre-wrap;word-break:break-word}
 </style>
 <div id="noteReader" class="noteReader" onclick="if(event.target===this)closeNoteReader()">
   <div class="noteReaderCard" onclick="event.stopPropagation()">
