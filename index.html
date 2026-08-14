@@ -340,10 +340,42 @@ function updateBook(id){
   let b=data.books.find(x=>x.id===id);b.title=e_title.value.trim();b.author=e_author.value.trim();b.platform=e_platform.value.trim();b.type=e_type.value;b.status=e_status.value;b.dateStart=e_start.value;b.dateEnd=e_end.value;b.note=e_note.value.trim();b.reason=e_reason.value.trim();b.tags=[...editTags];b.cover=editCover;
   if(b.status==='已看完'&&!b.dateEnd)b.dateEnd=b.dateStart;save();closeModal();render()
 }
+
+function exportData(){
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='我的小说小窝备份.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function importData(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(){
+    try{
+      const obj=JSON.parse(reader.result);
+      if(!obj.books) throw new Error('invalid');
+      data=obj;
+      data.customTags=data.customTags||[];
+      save();
+      alert('恢复成功');
+      closeModal();
+      render();
+    }catch(err){
+      alert('备份文件无效');
+    }
+  };
+  reader.readAsText(file);
+}
+
 function openSettings(){
   $('modal').classList.add('show');document.body.classList.add('modal-open');$('sheet').innerHTML=`<button class="close" onclick="closeModal()">×</button><h2>设置</h2>
   <div class="settingrow"><span>主题颜色</span><div class="colors">${['#9d8bd7','#9eb9e9','#9ed7c0','#efb4c7','#f0c98d','#9faec3'].map(c=>`<button class="color" style="background:${c}" onclick="setTheme('${c}')"></button>`).join('')}</div></div>
-  <div class="settingrow"><span>自定义标签</span><button class="link" onclick="openTagManager()">管理</button></div>`;
+  <div class="settingrow"><span>自定义标签</span><button class="link" onclick="openTagManager()">管理</button></div>
+  <div class="settingrow"><span>数据管理</span><div><button class="link" onclick="exportData()">导出</button><button class="link" onclick="$('backupInput').click()">导入</button></div></div>
+  <input id="backupInput" type="file" accept="application/json" style="display:none" onchange="importData(event)">`;
 }
 function setTheme(c){data.theme=c;document.documentElement.style.setProperty('--accent',c);document.querySelectorAll('.primary').forEach(x=>x.style.background=c);save();closeModal();render()}
 function closeModal(){$('modal').classList.remove('show');document.body.classList.remove('modal-open')}
