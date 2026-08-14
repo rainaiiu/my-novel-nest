@@ -137,7 +137,7 @@ const $=id=>document.getElementById(id);
 data.books=(data.books||[]).map(b=>({...b,type:categoryMap[b.type]||b.type}));
 function save(){localStorage.setItem(key,JSON.stringify(data))}
 function filterShelfTag(tag){
-  filter=tag;
+  filter = (filter===tag ? '全部' : tag);
   render();
 }
 function go(p){page=p;render()}
@@ -177,7 +177,7 @@ function renderShelf(v){
   let builtInTags=['甜宠','治愈','校园','虐恋','悬疑','群像'];
   let filters=['全部','在读','已看完','弃文','都市纯爱','现代幻想','古代纯爱','未来幻想',...builtInTags,...data.customTags];
   v.innerHTML=`<div class="card"><div class="sectionhead"><h2>我的书架</h2><button class="link" onclick="openAdd()">＋ 添加小说</button></div>
-  <div class="tabs">${filters.map(x=>`<button class="${filter===x?'active':''}" onclick="filterShelfTag(${JSON.stringify(x)})">${esc(x)}</button>`).join('')}</div>
+  <div class="tabs">${filters.map(x=>`<button type="button" data-tag="${esc(x)}" class="${filter===x?'active':''}" onclick="filterShelfTag(this.dataset.tag)">${esc(x)}</button>`).join('')}</div>
   <div class="filterline"><span>${list.length} 本</span><button class="link" onclick="addCustomTag()">＋ 自定义标签</button></div>
   ${list.length?`<div class="grid" style="margin-top:10px">${list.map(b=>card(b,true)).join('')}</div>`:'<div class="empty">这个筛选里还没有书</div>'}</div>`;
 }
