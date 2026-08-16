@@ -389,3 +389,59 @@ document.addEventListener("DOMContentLoaded",function(){
   });
  }
 });
+
+
+(function(){
+  function normalizeImportedData(raw){
+    if(!raw || typeof raw!=="object") return null;
+    var d=raw.data && typeof raw.data==="object" ? raw.data : raw;
+    if(Array.isArray(d.books) || Array.isArray(d.records) || Array.isArray(d.tags) || Array.isArray(d.customTags)){
+      d.books=Array.isArray(d.books)?d.books:[];
+      d.records=Array.isArray(d.records)?d.records:[];
+      d.tags=Array.isArray(d.tags)?d.tags:[];
+      d.customTags=Array.isArray(d.customTags)?d.customTags:[];
+      return d;
+    }
+    return null;
+  }
+
+  function install(){
+    var inputs=document.querySelectorAll('input[type="file"]');
+    inputs.forEach(function(input){
+      if(input.dataset.importFixInstalled) return;
+      var accept=(input.getAttribute("accept")||"").toLowerCase();
+      var parentText=(input.parentElement&&input.parentElement.innerText||"").toLowerCase();
+      if(!(accept.indexOf("json")>=0 || parentText.indexOf("导入")>=0 || parentText.indexOf("备份")>=0)) return;
+      input.dataset.importFixInstalled="1";
+      input.addEventListener("change",function(e){
+        var file=e.target.files&&e.target.files[0];
+        if(!file) return;
+        var reader=new FileReader();
+        reader.onload=function(ev){
+          try{
+            var raw=JSON.parse(ev.target.result);
+            var imported=normalizeImportedData(raw);
+            if(!imported) throw new Error("invalid");
+            if(typeof window.data!=="undefined"){
+              window.data=Object.assign(window.data, imported);
+              try{localStorage.setItem("novelNookData",JSON.stringify(window.data));}catch(_){}
+            }
+            if(typeof window.render==="function") window.render();
+            else if(typeof window.renderShelf==="function"){
+              var v=document.getElementById("view"); if(v) window.renderShelf(v);
+            }
+            input.value="";
+          }catch(err){
+            // Do not show a stale success state; let the original handler decide
+            // if it already owns this input. This branch is only a fallback.
+            console.warn("备份导入失败",err);
+          }
+        };
+        reader.readAsText(file);
+      }, true);
+    });
+  }
+  document.addEventListener("DOMContentLoaded",install);
+  window.addEventListener("load",install);
+  setTimeout(install,500);
+})();

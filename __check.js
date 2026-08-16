@@ -285,24 +285,62 @@ function exportData(){
   URL.revokeObjectURL(a.href);
 }
 function importData(e){
-  const file=e.target.files[0];
+  const file=e && e.target && e.target.files ? e.target.files[0] : null;
   if(!file)return;
   const reader=new FileReader();
   reader.onload=function(){
     try{
-      const obj=JSON.parse(reader.result);
-      if(!obj.books) throw new Error('invalid');
-      data=obj;
-      data.customTags=data.customTags||[];
-      save();
+      const raw=JSON.parse(reader.result);
+      // 兼容旧版/当前版备份：允许直接是数据对象，也允许包在 data / novelNestFull 中。
+      const obj = raw && raw.books ? raw :
+                  (raw && raw.data && raw.data.books ? raw.data : null) ||
+                  (raw && raw.novelNestFull && raw.novelNestFull.books ? raw.novelNestFull : null);
+      if(!obj || !Array.isArray(obj.books)) throw new Error('invalid');
+
+      const imported={
+        theme:obj.theme || '#9d8bd7',
+        books:Array.isArray(obj.books)?obj.books.map((b,i)=>({
+          ...b,
+          id:b.id ?? Date.now()+i,
+          title:b.title || '',
+          author:b.author || '',
+          platform:b.platform || '',
+          type:({'都市':'都市纯爱','现代':'现代幻想','古代':'古代纯爱','未来幻想':'未来幻想'}[b.type]||b.type||''),
+          status:b.status || '在读',
+          score:Number.isFinite(Number(b.score))?Number(b.score):0,
+          emoji:b.emoji || '♡',
+          dateStart:b.dateStart || b.date || '',
+          dateEnd:b.dateEnd || '',
+          note:b.note || '',
+          reason:b.reason || '',
+          tags:Array.isArray(b.tags)?b.tags:[],
+          cover:b.cover || '',
+          rank:b.rank ?? i+1
+        })):[],
+        customTags:Array.isArray(obj.customTags)?obj.customTags:[]
+      };
+
+      data=imported;
+      bookSearchKeyword='';
+      bookPage=1;
+      localStorage.setItem(key,JSON.stringify(data));
+      document.documentElement.style.setProperty('--accent',data.theme);
       alert('恢复成功');
       closeModal();
       render();
     }catch(err){
-      alert('备份文件无效');
+      console.error('导入备份失败:',err);
+      alert('备份文件无效或格式无法识别');
+    }finally{
+      // 允许再次选择同一个备份文件
+      e.target.value='';
     }
   };
-  reader.readAsText(file);
+  reader.onerror=function(){
+    e.target.value='';
+    alert('读取备份文件失败');
+  };
+  reader.readAsText(file,'utf-8');
 }
 
 function openSettings(){
@@ -351,3 +389,59 @@ document.addEventListener("DOMContentLoaded",function(){
   });
  }
 });
+
+
+(function(){
+  function normalizeImportedData(raw){
+    if(!raw || typeof raw!=="object") return null;
+    var d=raw.data && typeof raw.data==="object" ? raw.data : raw;
+    if(Array.isArray(d.books) || Array.isArray(d.records) || Array.isArray(d.tags) || Array.isArray(d.customTags)){
+      d.books=Array.isArray(d.books)?d.books:[];
+      d.records=Array.isArray(d.records)?d.records:[];
+      d.tags=Array.isArray(d.tags)?d.tags:[];
+      d.customTags=Array.isArray(d.customTags)?d.customTags:[];
+      return d;
+    }
+    return null;
+  }
+
+  function install(){
+    var inputs=document.querySelectorAll('input[type="file"]');
+    inputs.forEach(function(input){
+      if(input.dataset.importFixInstalled) return;
+      var accept=(input.getAttribute("accept")||"").toLowerCase();
+      var parentText=(input.parentElement&&input.parentElement.innerText||"").toLowerCase();
+      if(!(accept.indexOf("json")>=0 || parentText.indexOf("导入")>=0 || parentText.indexOf("备份")>=0)) return;
+      input.dataset.importFixInstalled="1";
+      input.addEventListener("change",function(e){
+        var file=e.target.files&&e.target.files[0];
+        if(!file) return;
+        var reader=new FileReader();
+        reader.onload=function(ev){
+          try{
+            var raw=JSON.parse(ev.target.result);
+            var imported=normalizeImportedData(raw);
+            if(!imported) throw new Error("invalid");
+            if(typeof window.data!=="undefined"){
+              window.data=Object.assign(window.data, imported);
+              try{localStorage.setItem("novelNookData",JSON.stringify(window.data));}catch(_){}
+            }
+            if(typeof window.render==="function") window.render();
+            else if(typeof window.renderShelf==="function"){
+              var v=document.getElementById("view"); if(v) window.renderShelf(v);
+            }
+            input.value="";
+          }catch(err){
+            // Do not show a stale success state; let the original handler decide
+            // if it already owns this input. This branch is only a fallback.
+            console.warn("备份导入失败",err);
+          }
+        };
+        reader.readAsText(file);
+      }, true);
+    });
+  }
+  document.addEventListener("DOMContentLoaded",install);
+  window.addEventListener("load",install);
+  setTimeout(install,500);
+})();
