@@ -196,7 +196,6 @@ function renderCalendar(v){
     for(let c=0;c<7;c++){let n=rowStart+c;let valid=n>=1&&n<=total;let today=(isoDate(new Date())===`${y}-${String(m+1).padStart(2,'0')}-${String(n).padStart(2,'0')}`);cells+=`<div class="daynum ${today?'today':''}">${valid?n:''}</div>`}
     html+=`<div class="week">${cells}${bars.filter(x=>x.week===wi).map(b=>`<div class="spanbar" style="grid-column:${b.colStart}/${b.colEnd};grid-row:${b.lane+2};background:${b.bg}" onclick="openDetail(${b.id})" title="${esc(b.title)}">${esc(b.title)}</div>`).join('')}</div>`;
   });
-  </div>`;
   v.innerHTML=html;
 }
 const palette=['#ddd4f7','#cdeedf','#f6d7e3','#d6e3f8','#f6e1b7','#d9e7df'];
