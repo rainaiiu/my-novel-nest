@@ -196,7 +196,7 @@ function renderCalendar(v){
     for(let c=0;c<7;c++){let n=rowStart+c;let valid=n>=1&&n<=total;let today=(isoDate(new Date())===`${y}-${String(m+1).padStart(2,'0')}-${String(n).padStart(2,'0')}`);cells+=`<div class="daynum ${today?'today':''}">${valid?n:''}</div>`}
     html+=`<div class="week">${cells}${bars.filter(x=>x.week===wi).map(b=>`<div class="spanbar" style="grid-column:${b.colStart}/${b.colEnd};grid-row:${b.lane+2};background:${b.bg}" onclick="openDetail(${b.id})" title="${esc(b.title)}">${esc(b.title)}</div>`).join('')}</div>`;
   });
-  html+=`<div class="calLegend"><span class="legend"><i style="background:#dcd3f5"></i>在读</span><span class="legend"><i style="background:#cfeee1"></i>已看完</span><span class="legend"><i style="background:#f6d8e3"></i>弃文</span></div><div class="calNote">同一天可以同时存在多本书：每本书占一条自己的色带。比如 18–20 号同时读两本，就会出现两条不同颜色的连续色块。</div></div>`;
+  </div>`;
   v.innerHTML=html;
 }
 const palette=['#ddd4f7','#cdeedf','#f6d7e3','#d6e3f8','#f6e1b7','#d9e7df'];
