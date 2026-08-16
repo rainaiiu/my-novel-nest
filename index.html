@@ -394,10 +394,10 @@ render();
 .noteTap{position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:10px;color:#9d8bd7;background:#f0ecfb;padding:4px 7px;border-radius:999px}
 .noteReader{position:fixed;inset:0;z-index:10000;background:rgba(35,30,35,.38);display:none;align-items:flex-end;justify-content:center;padding:0}
 .noteReader.show{display:flex}
-.noteReaderCard{width:min(460px,100%);max-height:88vh;background:var(--panel);border-radius:24px 24px 0 0;box-shadow:0 -10px 40px rgba(50,35,45,.18);overflow:hidden}
-.noteReaderHead{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:1px solid var(--line);font-weight:700}
+.noteReaderCard{width:min(460px,100%);height:min(88vh,720px);max-height:88vh;background:var(--panel);border-radius:24px 24px 0 0;box-shadow:0 -10px 40px rgba(50,35,45,.18);overflow:hidden;display:flex;flex-direction:column}
+.noteReaderHead{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:1px solid var(--line);font-weight:700;flex-shrink:0}
 .noteReaderClose{border:0;background:var(--panel2);border-radius:50%;width:34px;height:34px;font-size:22px;color:var(--sub)}
-.noteReaderBody{padding:20px 19px 30px;overflow:auto;font-size:18px;line-height:1.9;color:var(--text);white-space:pre-wrap;word-break:break-word}
+.noteReaderBody{padding:20px 19px 30px;overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;touch-action:pan-y;font-size:18px;line-height:1.9;color:var(--text);white-space:pre-wrap;word-break:break-word}
 .customTagRow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.customTagActions{display:flex;gap:7px;align-items:center}.customTagActions .danger{padding:7px 9px;font-size:11px}.customTagActions .link{padding:7px 9px;border-radius:10px}
 </style>
 <div id="noteReader" class="noteReader" onclick="if(event.target===this)closeNoteReader()">
