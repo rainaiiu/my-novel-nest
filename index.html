@@ -1,3 +1,15 @@
+
+<style>
+.book-search-box{padding:12px 16px;}
+.book-search-box input{
+ width:100%;
+ box-sizing:border-box;
+ padding:12px 16px;
+ border-radius:18px;
+ border:1px solid #eee;
+ font-size:15px;
+}
+</style>
 <!doctype html>
 <html lang="zh-CN">
 <head>
@@ -99,7 +111,7 @@ textarea{min-height:75px;resize:vertical}
 .calNote{margin-top:10px;background:#faf6f4;border-radius:12px;padding:9px;font-size:10px;color:#8f8386;line-height:1.5}
 </style>
 </head>
-<body>
+<body><div class="book-search-box"><input id="bookSearchInput" placeholder="搜索书名、作者、标签"></div>
 <div class="app">
   <div class="top">
     <div class="brand"><h1>📖 我的小说小窝</h1><p>记录每一本书，留住每一次心动</p></div>
@@ -417,3 +429,29 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeNoteReader()});
 
 </body>
 </html>
+<script>
+window.bookSearchKeyword = "";
+
+function searchBookMatch(book){
+ const key=(window.bookSearchKeyword||"").trim().toLowerCase();
+ if(!key) return true;
+ const data=[
+  book.title||"",
+  book.author||"",
+  ...(book.tags||[])
+ ].join(" ").toLowerCase();
+ return data.includes(key);
+}
+
+document.addEventListener("DOMContentLoaded",function(){
+ const input=document.getElementById("bookSearchInput");
+ if(input){
+  input.addEventListener("input",function(e){
+   window.bookSearchKeyword=e.target.value;
+   if(typeof renderBooks==="function"){
+    renderBooks();
+   }
+  });
+ }
+});
+</script>
