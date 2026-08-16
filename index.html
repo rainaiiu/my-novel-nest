@@ -111,7 +111,7 @@ textarea{min-height:75px;resize:vertical}
 .calNote{margin-top:10px;background:#faf6f4;border-radius:12px;padding:9px;font-size:10px;color:#8f8386;line-height:1.5}
 </style>
 </head>
-<body><div class="book-search-box"><input id="bookSearchInput" placeholder="搜索书名、作者、标签"></div>
+<body>
 <div class="app">
   <div class="top">
     <div class="brand"><h1>📖 我的小说小窝</h1><p>记录每一本书，留住每一次心动</p></div>
@@ -132,6 +132,8 @@ textarea{min-height:75px;resize:vertical}
 if ("serviceWorker" in navigator) window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));
 const key='novelNestFull';
 const categoryMap={'都市':'都市纯爱','现代':'现代幻想','古代':'古代纯爱','未来幻想':'未来幻想','都市纯爱':'都市纯爱','现代幻想':'现代幻想','古代纯爱':'古代纯爱'};
+
+let bookSearchKeyword='';
 
 let data=JSON.parse(localStorage.getItem(key)||'null')||{
   theme:'#9d8bd7',books:[
@@ -186,9 +188,14 @@ function renderHome(v){
 }
 function renderShelf(v){
   let list=data.books.filter(b=>filter==='全部'||b.status===filter||b.type===filter||(b.tags||[]).includes(filter));
+  if(bookSearchKeyword.trim()){
+    let k=bookSearchKeyword.trim().toLowerCase();
+    list=list.filter(b=>[b.title,b.author,b.type,...(b.tags||[])].join(' ').toLowerCase().includes(k));
+  }
   let builtInTags=['甜宠','治愈','校园','虐恋','悬疑','群像'];
   let filters=['全部','在读','已看完','弃文','都市纯爱','现代幻想','古代纯爱','未来幻想',...builtInTags,...data.customTags];
   v.innerHTML=`<div class="card"><div class="sectionhead"><h2>我的书架</h2><button class="link" onclick="openAdd()">＋ 添加小说</button></div>
+  <div class="book-search-box"><input id="bookSearchInput" value="${esc(bookSearchKeyword)}" placeholder="搜索书名、作者、标签" oninput="bookSearchKeyword=this.value;renderShelf($(&quot;view&quot;))"></div>
   <div class="tabs">${filters.map(x=>`<button type="button" data-tag="${esc(x)}" class="${filter===x?'active':''}" onclick="filterShelfTag(this.dataset.tag)">${esc(x)}</button>`).join('')}</div>
   <div class="filterline"><span>${list.length} 本</span><button class="link" onclick="addCustomTag()">＋ 自定义标签</button></div>
   ${list.length?`<div class="grid" style="margin-top:10px">${list.map(b=>card(b,true)).join('')}</div>`:'<div class="empty">这个筛选里还没有书</div>'}</div>`;
