@@ -94,8 +94,7 @@ function renderShelf(v){
     : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h14"></path></svg>';
 
   v.innerHTML=`<div class="card"><div class="sectionhead"><h2>我的书架</h2><button class="link" onclick="openAdd()">＋ 添加小说</button></div>
-  <div class="book-search-box"><input id="bookSearchInput" value="${esc(bookSearchKeyword)}" placeholder="搜索书名、作者、标签"><button type="button" class="search-btn" aria-label="搜索" onclick="doBookSearch()">${searchIcon}</button></div>
-  <div class="shelf-tools"><button type="button" class="shelf-view-toggle" aria-label="切换显示模式" onclick="toggleBookView()">${viewIcon}</button></div>
+  <div class="shelf-tools"><div class="book-search-box"><input id="bookSearchInput" value="${esc(bookSearchKeyword)}" placeholder="搜索书名、作者、标签"><button type="button" class="search-btn" aria-label="搜索" onclick="doBookSearch()">${searchIcon}</button></div><button type="button" class="shelf-view-toggle" aria-label="切换显示模式" onclick="toggleBookView()">${viewIcon}</button></div>
   <div class="tabs">${filters.map(x=>`<button type="button" data-tag="${esc(x)}" class="${filter===x?'active':''}" onclick="filterShelfTag(this.dataset.tag)">${esc(x)}</button>`).join('')}</div>
   <div class="filterline"><span>${list.length} 本</span><button class="link" onclick="addCustomTag()">＋ 自定义标签</button></div>
   ${visible.length?`<div class="${bookViewMode==='card'?'grid':'shelf-grid-list'}">${visible.map(b=>card(b,bookViewMode==='card')).join('')}</div>`:'<div class="empty">这个筛选里还没有书</div>'}
@@ -291,7 +290,6 @@ function importData(e){
   reader.onload=function(){
     try{
       const raw=JSON.parse(reader.result);
-      // 兼容旧版/当前版备份：允许直接是数据对象，也允许包在 data / novelNestFull 中。
       const obj = raw && raw.books ? raw :
                   (raw && raw.data && raw.data.books ? raw.data : null) ||
                   (raw && raw.novelNestFull && raw.novelNestFull.books ? raw.novelNestFull : null);
@@ -299,7 +297,7 @@ function importData(e){
 
       const imported={
         theme:obj.theme || '#9d8bd7',
-        books:Array.isArray(obj.books)?obj.books.map((b,i)=>({
+        books:obj.books.map((b,i)=>({
           ...b,
           id:b.id ?? Date.now()+i,
           title:b.title || '',
@@ -313,31 +311,33 @@ function importData(e){
           dateEnd:b.dateEnd || '',
           note:b.note || '',
           reason:b.reason || '',
+          description:b.description || '',
           tags:Array.isArray(b.tags)?b.tags:[],
           cover:b.cover || '',
           rank:b.rank ?? i+1
-        })):[],
+        })),
         customTags:Array.isArray(obj.customTags)?obj.customTags:[]
       };
 
+      // Update the app's real lexical data variable, not window.data.
       data=imported;
       bookSearchKeyword='';
       bookPage=1;
       localStorage.setItem(key,JSON.stringify(data));
       document.documentElement.style.setProperty('--accent',data.theme);
-      alert('恢复成功');
       closeModal();
       render();
+      alert('恢复成功');
     }catch(err){
       console.error('导入备份失败:',err);
       alert('备份文件无效或格式无法识别');
     }finally{
-      // 允许再次选择同一个备份文件
-      e.target.value='';
+      // Clear the input after handling so the same file can be selected again.
+      if(e && e.target)e.target.value='';
     }
   };
   reader.onerror=function(){
-    e.target.value='';
+    if(e && e.target)e.target.value='';
     alert('读取备份文件失败');
   };
   reader.readAsText(file,'utf-8');
@@ -389,59 +389,3 @@ document.addEventListener("DOMContentLoaded",function(){
   });
  }
 });
-
-
-(function(){
-  function normalizeImportedData(raw){
-    if(!raw || typeof raw!=="object") return null;
-    var d=raw.data && typeof raw.data==="object" ? raw.data : raw;
-    if(Array.isArray(d.books) || Array.isArray(d.records) || Array.isArray(d.tags) || Array.isArray(d.customTags)){
-      d.books=Array.isArray(d.books)?d.books:[];
-      d.records=Array.isArray(d.records)?d.records:[];
-      d.tags=Array.isArray(d.tags)?d.tags:[];
-      d.customTags=Array.isArray(d.customTags)?d.customTags:[];
-      return d;
-    }
-    return null;
-  }
-
-  function install(){
-    var inputs=document.querySelectorAll('input[type="file"]');
-    inputs.forEach(function(input){
-      if(input.dataset.importFixInstalled) return;
-      var accept=(input.getAttribute("accept")||"").toLowerCase();
-      var parentText=(input.parentElement&&input.parentElement.innerText||"").toLowerCase();
-      if(!(accept.indexOf("json")>=0 || parentText.indexOf("导入")>=0 || parentText.indexOf("备份")>=0)) return;
-      input.dataset.importFixInstalled="1";
-      input.addEventListener("change",function(e){
-        var file=e.target.files&&e.target.files[0];
-        if(!file) return;
-        var reader=new FileReader();
-        reader.onload=function(ev){
-          try{
-            var raw=JSON.parse(ev.target.result);
-            var imported=normalizeImportedData(raw);
-            if(!imported) throw new Error("invalid");
-            if(typeof window.data!=="undefined"){
-              window.data=Object.assign(window.data, imported);
-              try{localStorage.setItem("novelNookData",JSON.stringify(window.data));}catch(_){}
-            }
-            if(typeof window.render==="function") window.render();
-            else if(typeof window.renderShelf==="function"){
-              var v=document.getElementById("view"); if(v) window.renderShelf(v);
-            }
-            input.value="";
-          }catch(err){
-            // Do not show a stale success state; let the original handler decide
-            // if it already owns this input. This branch is only a fallback.
-            console.warn("备份导入失败",err);
-          }
-        };
-        reader.readAsText(file);
-      }, true);
-    });
-  }
-  document.addEventListener("DOMContentLoaded",install);
-  window.addEventListener("load",install);
-  setTimeout(install,500);
-})();
