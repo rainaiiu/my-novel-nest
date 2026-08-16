@@ -94,8 +94,7 @@ function renderShelf(v){
     : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h14"></path></svg>';
 
   v.innerHTML=`<div class="card"><div class="sectionhead"><h2>我的书架</h2><button class="link" onclick="openAdd()">＋ 添加小说</button></div>
-  <div class="book-search-box"><input id="bookSearchInput" value="${esc(bookSearchKeyword)}" placeholder="搜索书名、作者、标签"><button type="button" class="search-btn" aria-label="搜索" onclick="doBookSearch()">${searchIcon}</button></div>
-  <div class="shelf-tools"><button type="button" class="shelf-view-toggle" aria-label="切换显示模式" onclick="toggleBookView()">${viewIcon}</button></div>
+  <div class="shelf-tools"><div class="book-search-box"><input id="bookSearchInput" value="${esc(bookSearchKeyword)}" placeholder="搜索书名、作者、标签"><button type="button" class="search-btn" aria-label="搜索">${searchIcon}</button></div><button type="button" class="shelf-view-toggle" aria-label="切换显示模式">${viewIcon}</button></div>
   <div class="tabs">${filters.map(x=>`<button type="button" data-tag="${esc(x)}" class="${filter===x?'active':''}" onclick="filterShelfTag(this.dataset.tag)">${esc(x)}</button>`).join('')}</div>
   <div class="filterline"><span>${list.length} 本</span><button class="link" onclick="addCustomTag()">＋ 自定义标签</button></div>
   ${visible.length?`<div class="${bookViewMode==='card'?'grid':'shelf-grid-list'}">${visible.map(b=>card(b,bookViewMode==='card')).join('')}</div>`:'<div class="empty">这个筛选里还没有书</div>'}

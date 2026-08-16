@@ -1,36 +1,76 @@
 
-<style id="shelfUIRefineCSS">
-.book-search-box{position:relative;display:flex;align-items:center;flex:1;min-width:0}
-.book-search-box input{width:100%;box-sizing:border-box;padding:11px 52px 11px 14px}
-.book-search-box .search-btn{
-  position:absolute;right:10px;top:50%;transform:translateY(-50%);
-  width:32px;height:32px;padding:0;border:0;background:transparent;
-  color:#8f83a8;display:flex;align-items:center;justify-content:center;
-  cursor:pointer;
-}
-.book-search-box .search-btn svg{
-  width:17px;height:17px;stroke:currentColor;fill:none;
-  stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round;
-}
+<style id="shelfUIFinalCSS">
+/* 小说小窝：书架顶部工具栏 */
 .shelf-tools{
-  display:flex;align-items:center;gap:8px;margin:10px 0 12px;
+  display:flex !important;
+  flex-direction:row !important;
+  align-items:center !important;
+  width:100% !important;
+  gap:10px !important;
+  margin:10px 0 12px !important;
 }
-.shelf-tools .book-search-box{margin:0}
-.shelf-view-toggle{
-  flex:0 0 38px;width:38px;height:38px;
-  border:1px solid #e8e4ee;background:#fff;border-radius:13px;
-  color:#8f83a8;cursor:pointer;display:flex;align-items:center;justify-content:center;
+.shelf-tools .book-search-box{
+  position:relative !important;
+  display:flex !important;
+  flex:1 1 auto !important;
+  width:auto !important;
+  min-width:0 !important;
+  margin:0 !important;
 }
-.shelf-view-toggle svg{
-  width:17px;height:17px;stroke:currentColor;fill:none;
-  stroke-width:1.55;stroke-linecap:round;stroke-linejoin:round;
+.shelf-tools .book-search-box input{
+  width:100% !important;
+  min-width:0 !important;
+  box-sizing:border-box !important;
+  padding:11px 56px 11px 14px !important;
 }
-.shelf-grid-list{display:flex!important;flex-direction:column!important;gap:8px!important;margin-top:10px!important}
-.shelf-grid-list .book{width:100%!important;box-sizing:border-box}
-.shelf-pages{display:flex;align-items:center;justify-content:center;gap:12px;margin:16px 0 2px}
-.shelf-pages button{border:1px solid #e8e4ee;background:#fff;border-radius:12px;padding:7px 12px;color:inherit}
-.shelf-pages button:disabled{opacity:.35}
-.shelf-page-info{font-size:13px;min-width:54px;text-align:center}
+.shelf-tools .book-search-box .search-btn{
+  position:absolute !important;
+  right:12px !important;
+  top:50% !important;
+  transform:translateY(-50%) !important;
+  width:30px !important;
+  height:30px !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  background:transparent !important;
+  color:#8f83a8 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+.shelf-tools .book-search-box .search-btn svg{
+  width:17px !important;
+  height:17px !important;
+  stroke:currentColor !important;
+  fill:none !important;
+  stroke-width:1.65 !important;
+  stroke-linecap:round !important;
+  stroke-linejoin:round !important;
+}
+.shelf-tools .shelf-view-toggle{
+  flex:0 0 38px !important;
+  width:38px !important;
+  height:38px !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:1px solid #e8e4ee !important;
+  background:#fff !important;
+  border-radius:13px !important;
+  color:#8f83a8 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+.shelf-tools .shelf-view-toggle svg{
+  width:17px !important;
+  height:17px !important;
+  stroke:currentColor !important;
+  fill:none !important;
+  stroke-width:1.55 !important;
+  stroke-linecap:round !important;
+  stroke-linejoin:round !important;
+}
 </style>
 
 <style>
@@ -258,8 +298,7 @@ function renderShelf(v){
     : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h14"></path></svg>';
 
   v.innerHTML=`<div class="card"><div class="sectionhead"><h2>我的书架</h2><button class="link" onclick="openAdd()">＋ 添加小说</button></div>
-  <div class="book-search-box"><input id="bookSearchInput" value="${esc(bookSearchKeyword)}" placeholder="搜索书名、作者、标签"><button type="button" class="search-btn" aria-label="搜索" onclick="doBookSearch()">${searchIcon}</button></div>
-  <div class="shelf-tools"><button type="button" class="shelf-view-toggle" aria-label="切换显示模式" onclick="toggleBookView()">${viewIcon}</button></div>
+  <div class="shelf-tools"><div class="book-search-box"><input id="bookSearchInput" value="${esc(bookSearchKeyword)}" placeholder="搜索书名、作者、标签"><button type="button" class="search-btn" aria-label="搜索">${searchIcon}</button></div><button type="button" class="shelf-view-toggle" aria-label="切换显示模式">${viewIcon}</button></div>
   <div class="tabs">${filters.map(x=>`<button type="button" data-tag="${esc(x)}" class="${filter===x?'active':''}" onclick="filterShelfTag(this.dataset.tag)">${esc(x)}</button>`).join('')}</div>
   <div class="filterline"><span>${list.length} 本</span><button class="link" onclick="addCustomTag()">＋ 自定义标签</button></div>
   ${visible.length?`<div class="${bookViewMode==='card'?'grid':'shelf-grid-list'}">${visible.map(b=>card(b,bookViewMode==='card')).join('')}</div>`:'<div class="empty">这个筛选里还没有书</div>'}
