@@ -1,149 +1,4 @@
 
-<style id="shelfEnhanceCSS">
-.book-search-box{position:relative;display:flex;align-items:center;margin:10px 0}
-.book-search-box input{width:100%;box-sizing:border-box;padding-right:48px}
-.book-search-box .search-btn{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:34px;height:34px;padding:0;border:0;background:transparent;color:#8f83a8;display:flex;align-items:center;justify-content:center;cursor:pointer}
-.book-search-box .search-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-.shelf-tools{display:flex;align-items:center;gap:8px;margin:8px 0 10px}
-.shelf-view-toggle{border:1px solid #e8e4ee;background:#fff;border-radius:12px;width:38px;height:34px;color:#8f83a8;cursor:pointer}
-.shelf-grid-list{display:flex!important;flex-direction:column!important;gap:8px!important;margin-top:10px!important}
-.shelf-grid-list .book{width:100%!important;box-sizing:border-box}
-.shelf-pages{display:flex;align-items:center;justify-content:center;gap:12px;margin:16px 0 2px}
-.shelf-pages button{border:1px solid #e8e4ee;background:#fff;border-radius:12px;padding:7px 12px;color:inherit}
-.shelf-pages button:disabled{opacity:.35}
-.shelf-page-info{font-size:13px;min-width:54px;text-align:center}
-</style>
-
-<style>
-.book-search-box{padding:12px 16px;}
-.book-search-box input{
- width:100%;
- box-sizing:border-box;
- padding:12px 16px;
- border-radius:18px;
- border:1px solid #eee;
- font-size:15px;
-}
-</style>
-<!doctype html>
-<html lang="zh-CN">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f7f3f1">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icon-192.png">
-<title>我的小说小窝</title><meta name="app-build" content="2026-08-14-final-fixed-20260814">
-<style>
-:root{
-  --bg:#f7f3f1;--panel:#fffdfc;--panel2:#faf6f4;--text:#494344;--sub:#928887;
-  --line:#eee5e2;--accent:#9d8bd7;--accent2:#ece7fb;--pink:#efb4c7;
-  --green:#9ed7c0;--blue:#9eb9e9;--yellow:#f2d59d;--danger:#e9a9b9;
-  --shadow:0 10px 30px rgba(86,65,76,.07);--radius:22px
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
-button,input,select,textarea{font:inherit}
-button{cursor:pointer}
-.app{max-width:460px;margin:auto;min-height:100vh;padding:18px 15px 92px}
-.top{display:flex;justify-content:space-between;align-items:center;margin:3px 2px 18px}
-.brand h1{font-size:23px;letter-spacing:.3px;margin:0;font-weight:750}
-.brand p{margin:4px 0 0;color:var(--sub);font-size:11px}
-.iconbtn{border:1px solid var(--line);background:rgba(255,255,255,.85);width:40px;height:40px;border-radius:50%;color:#756b70}
-.card{background:var(--panel);border:1px solid rgba(235,225,222,.8);border-radius:var(--radius);padding:17px;margin:12px 0;box-shadow:var(--shadow)}
-.sectionhead{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.sectionhead h2{font-size:18px;margin:0;font-weight:750}
-.sectionhead small{color:var(--sub);font-size:11px}
-.link{border:0;background:transparent;color:#8573c8;padding:5px}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.stat{background:var(--panel2);border:1px solid var(--line);border-radius:17px;padding:13px 14px}
-.stat small{color:var(--sub);font-size:11px}
-.stat b{font-size:24px;display:block;margin-top:4px;letter-spacing:.2px}
-.timeline{position:relative;margin-top:20px;padding-left:25px}
-.timeline:before{content:"";position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:#e8e0ed;border-radius:2px}
-.event{position:relative;margin-bottom:22px}
-.dot{position:absolute;left:-21px;top:9px;width:11px;height:11px;border-radius:50%;border:3px solid var(--panel);box-shadow:0 0 0 2px #c8b9e9;background:#9d8bd7}
-.date{font-size:11px;color:#8e8186;margin-bottom:8px}
-.book{display:flex;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:17px;padding:10px}
-.cover{width:58px;height:78px;border-radius:10px;background:linear-gradient(145deg,#e8e1f7,#f3e9ed);display:flex;align-items:center;justify-content:center;color:#9c9097;font-size:11px;overflow:hidden;flex:none}
-.cover img{width:100%;height:100%;object-fit:cover}
-.book h3{font-size:15px;margin:0 0 3px;font-weight:700}
-.muted{font-size:11px;color:var(--sub);margin:2px 0}
-.stars{display:flex;gap:0;margin-top:4px}
-.star{border:0;background:none;padding:0 1px;color:#e4a86d;font-size:16px;line-height:1}
-.star.off{color:#ddd4d1}
-.pill{display:inline-flex;align-items:center;background:#eee9fb;color:#7969b9;border-radius:99px;padding:4px 8px;font-size:10px;margin-top:5px}
-.pill.done{background:#e5f5ee;color:#589a7d}.pill.drop{background:#fae9ef;color:#b66e84}
-.metaRow{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
-.miniTag{font-size:10px;color:#7f7377;background:#f5f0ee;border-radius:7px;padding:3px 6px}
-.tabs{display:flex;gap:6px;overflow:auto;margin:14px 0 10px;padding-bottom:2px;scrollbar-width:none}
-.tabs::-webkit-scrollbar{display:none}
-.tabs button{white-space:nowrap;border:1px solid var(--line);border-radius:99px;padding:7px 11px;background:#fff;color:#786e72;font-size:11px}
-.tabs button.active{background:#9d8bd7;border-color:#9d8bd7;color:#fff}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.cardbook{background:#fff;border:1px solid var(--line);border-radius:17px;padding:10px;position:relative;min-width:0}
-.cardbook .cover{width:100%;height:155px;margin-bottom:9px}
-.cardbook h3{font-size:14px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cardbook .stars{margin-top:3px}
-.cardbook .star{font-size:14px}
-.cardbook .dateMini{font-size:10px;color:#8e8186;margin-top:6px}
-.cardbook .deleteMini{position:absolute;right:8px;bottom:8px;border:0;background:#f8eeee;color:#b77983;border-radius:7px;font-size:10px;padding:4px 6px}
-.fab{position:fixed;right:max(21px,calc((100vw - 460px)/2 + 17px));bottom:82px;border:0;width:54px;height:54px;border-radius:50%;background:#9d8bd7;color:#fff;font-size:28px;box-shadow:0 9px 25px rgba(116,94,173,.24);z-index:4}
-.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:460px;height:70px;background:rgba(255,253,252,.96);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);z-index:5;padding-bottom:env(safe-area-inset-bottom)}
-.nav button{border:0;background:none;color:#9a8f92;font-size:10px}
-.nav button strong{display:block;font-size:19px;margin-bottom:3px;font-weight:500}
-.nav button.active{color:#8170c7}
-.modal{position:fixed;inset:0;background:rgba(50,42,45,.35);display:none;align-items:flex-end;z-index:10;overflow:hidden;touch-action:none}
-.modal.show{display:flex}
-.sheet{background:#fffdfc;width:100%;max-width:460px;margin:auto;border-radius:28px 28px 0 0;padding:18px 18px 30px;max-height:calc(100dvh - 18px);overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y}
-body.modal-open{overflow:hidden;position:fixed;width:100%}.close{float:right;border:0;background:#f2ecea;border-radius:50%;width:34px;height:34px;color:#756c70;font-size:20px}
-.field{margin:13px 0}.field label{display:block;font-size:11px;color:#817579;margin-bottom:6px;font-weight:650}
-input,select,textarea{width:100%;border:1px solid #e8dfdc;background:#fff;border-radius:13px;padding:11px 12px;color:var(--text);outline:none}
-input:focus,select:focus,textarea:focus{border-color:#b9a9e5;box-shadow:0 0 0 3px #eeeafd}
-textarea{min-height:75px;resize:vertical}
-.primary{width:100%;border:0;border-radius:14px;padding:12px;background:#9d8bd7;color:#fff;font-size:14px;font-weight:650}
-.danger{border:0;background:#fae8ec;color:#b36e80;border-radius:12px;padding:10px 12px}
-.coverUpload{display:flex;gap:10px;align-items:center}.uploadBtn{border:1px solid var(--line);background:#fff;border-radius:12px;padding:9px 11px;color:#776c70;font-size:12px}
-.tagrow{display:flex;flex-wrap:wrap;gap:7px}.tagChoice{border:1px solid var(--line);background:#fff;border-radius:10px;padding:7px 9px;font-size:11px;color:#746b6f}.tagChoice.sel{background:#eee9fb;border-color:#cfc4f1;color:#7564bd}
-.empty{text-align:center;color:#a19698;padding:30px 10px;font-size:12px}
-.rankrow{display:flex;align-items:center;gap:9px;padding:11px 0;border-bottom:1px solid var(--line)}
-.ranknum{width:23px;font-weight:750;color:#9d8bd7}.rankrow .cover{width:43px;height:58px}.rankrow .stars .star{font-size:13px}
-.filterline{display:flex;justify-content:space-between;align-items:center;margin-top:8px;color:var(--sub);font-size:11px}
-.color{width:30px;height:30px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #ddd}.colors{display:flex;gap:9px}
-.settingrow{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
-.detailTitle{display:flex;gap:13px;align-items:center}.detailTitle .cover{width:92px;height:125px}
-.detailBox{background:#faf6f4;border-radius:17px;padding:13px;margin-top:13px}.detailLine{display:flex;gap:8px;margin:8px 0;font-size:12px}.detailLine span:first-child{color:var(--sub);width:60px;flex:none}
-.calendarWrap{overflow:hidden}
-.calHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.monthTitle{font-size:18px;font-weight:750}
-.arrow{border:1px solid var(--line);background:#fff;border-radius:10px;width:32px;height:32px;color:#81777a}
-.calWeek{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
-.weekday{font-size:10px;color:#aaa0a3;text-align:center;padding:4px 0 7px}
-.week{position:relative;display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:30px 20px 20px 20px;gap:2px;margin-bottom:3px}
-.daynum{grid-row:1;font-size:10px;text-align:center;padding-top:5px;color:#6f6669;z-index:2}
-.daynum.today{width:22px;height:22px;margin:2px auto 0;background:#8170c7;color:#fff;border-radius:50%;padding-top:4px}
-.spanbar{align-self:center;height:18px;border-radius:7px;display:flex;align-items:center;padding:0 6px;font-size:9px;color:#655c61;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:1;border:1px solid rgba(255,255,255,.75)}
-.calLegend{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;font-size:10px;color:#8e8386}.legend{display:flex;align-items:center;gap:4px}.legend i{width:9px;height:9px;border-radius:3px;display:inline-block}
-.calNote{margin-top:10px;background:#faf6f4;border-radius:12px;padding:9px;font-size:10px;color:#8f8386;line-height:1.5}
-</style>
-</head>
-<body>
-<div class="app">
-  <div class="top">
-    <div class="brand"><h1>📖 我的小说小窝</h1><p>记录每一本书，留住每一次心动</p></div>
-    <button class="iconbtn" onclick="openSettings()">⚙︎</button>
-  </div>
-  <main id="view"></main>
-</div>
-<button class="fab" onclick="openAdd()">＋</button>
-<nav class="nav">
-  <button id="n-home" onclick="go('home')"><strong>⌁</strong>时间轴</button>
-  <button id="n-shelf" onclick="go('shelf')"><strong>▦</strong>书架</button>
-  <button id="n-rank" onclick="go('rank')"><strong>♕</strong>排名</button>
-  <button id="n-cal" onclick="go('cal')"><strong>□</strong>日历</button>
-</nav>
-<div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
-
-<script>
 if ("serviceWorker" in navigator) window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));
 const key='novelNestFull';
 const categoryMap={'都市':'都市纯爱','现代':'现代幻想','古代':'古代纯爱','未来幻想':'未来幻想','都市纯爱':'都市纯爱','现代幻想':'现代幻想','古代纯爱':'古代纯爱'};
@@ -461,27 +316,8 @@ function setTheme(c){data.theme=c;document.documentElement.style.setProperty('--
 function closeModal(){$('modal').classList.remove('show');document.body.classList.remove('modal-open')}
 $('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
 render();
-</script>
 
-<style>
-.notePreviewRow{position:relative;display:block;cursor:zoom-in;padding-right:92px}
-.notePreview{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
-.noteTap{position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:10px;color:#9d8bd7;background:#f0ecfb;padding:4px 7px;border-radius:999px}
-.noteReader{position:fixed;inset:0;z-index:10000;background:rgba(35,30,35,.38);display:none;align-items:flex-end;justify-content:center;padding:0}
-.noteReader.show{display:flex}
-.noteReaderCard{width:min(460px,100%);height:min(88vh,720px);max-height:88vh;background:var(--panel);border-radius:24px 24px 0 0;box-shadow:0 -10px 40px rgba(50,35,45,.18);overflow:hidden;display:flex;flex-direction:column}
-.noteReaderHead{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:1px solid var(--line);font-weight:700;flex-shrink:0}
-.noteReaderClose{border:0;background:var(--panel2);border-radius:50%;width:34px;height:34px;font-size:22px;color:var(--sub)}
-.noteReaderBody{padding:20px 19px 30px;overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;touch-action:pan-y;font-size:18px;line-height:1.9;color:var(--text);white-space:pre-wrap;word-break:break-word}
-.customTagRow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.customTagActions{display:flex;gap:7px;align-items:center}.customTagActions .danger{padding:7px 9px;font-size:11px}.customTagActions .link{padding:7px 9px;border-radius:10px}
-</style>
-<div id="noteReader" class="noteReader" onclick="if(event.target===this)closeNoteReader()">
-  <div class="noteReaderCard" onclick="event.stopPropagation()">
-    <div class="noteReaderHead"><span>读书笔记</span><button class="noteReaderClose" onclick="closeNoteReader()">×</button></div>
-    <div id="noteReaderBody" class="noteReaderBody"></div>
-  </div>
-</div>
-<script>
+
 function openNoteReader(id){
   const b=data.books.find(x=>x.id===id); if(!b||!b.note)return;
   $('noteReaderBody').textContent=b.note;
@@ -489,11 +325,8 @@ function openNoteReader(id){
 }
 function closeNoteReader(){ $('noteReader').classList.remove('show'); }
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeNoteReader()});
-</script>
 
-</body>
-</html>
-<script>
+
 window.bookSearchKeyword = "";
 
 function searchBookMatch(book){
@@ -518,4 +351,3 @@ document.addEventListener("DOMContentLoaded",function(){
   });
  }
 });
-</script>
